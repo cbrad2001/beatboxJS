@@ -8,7 +8,7 @@
 #define SAMPLE_RATE   44100
 #define NUM_CHANNELS  1
 #define SAMPLE_SIZE   (sizeof(short)) 	// bytes per sample
-#define SOURCE_FILE "beatbox-wav-files/100060__menegass__gui-drum-splash-hard.wav"
+#define SOURCE_FILE "/mnt/remote/myApps/beatbox-wav-files/100060__menegass__gui-drum-splash-hard.wav"
 
 // Store data of a single wave file read into memory.
 // Space is dynamically allocated; must be freed correctly!
@@ -40,9 +40,14 @@ int main()
 	Audio_readWaveFileIntoMemory(SOURCE_FILE, &sampleFile);
 
 	// Play Audio
-	Audio_playFile(handle, &sampleFile);
-//	Audio_playFile(handle, &sampleFile);
-//	Audio_playFile(handle, &sampleFile);
+	for (int i = 0; i < 5; i++) {
+		Audio_playFile(handle, &sampleFile);
+
+		// Drop and prepare to prevent underrun (need to stop buffer from reading with drop)
+		snd_pcm_drop(handle);
+		sleep(1);
+		snd_pcm_prepare(handle);
+	}
 
 	// Cleanup, letting the music in buffer play out (drain), then close and free.
 	snd_pcm_drain(handle);
