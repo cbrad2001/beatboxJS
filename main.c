@@ -1,4 +1,3 @@
-
 #include <alsa/asoundlib.h>
 #include <assert.h>
 #include <pthread.h>
@@ -9,6 +8,7 @@
 #define SAMPLE_RATE   44100
 #define NUM_CHANNELS  1
 #define SAMPLE_SIZE   (sizeof(short)) 	// bytes per sample
+#define SOURCE_FILE "beatbox-wav-files/100060__menegass__gui-drum-splash-hard.wav"
 
 // Store data of a single wave file read into memory.
 // Space is dynamically allocated; must be freed correctly!
