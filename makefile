@@ -3,7 +3,7 @@
 
 # Edit this file to compile extra C files into their own programs.
 TARGET= beatbox
-SOURCES= main.c audioMixer.c your_other_files_here.c
+SOURCES= main.c
 
 PUBDIR = $(HOME)/cmpt433/public/myApps
 OUTDIR = $(PUBDIR)
@@ -37,3 +37,6 @@ node:
 	mkdir -p $(PUBDIR)/beatbox-server-copy/ 
 	cp -R as3-server/* $(PUBDIR)/beatbox-server-copy/ 
 	cd $(PUBDIR)/beatbox-server-copy/ && npm install
+	
+app: wav
+	$(CC_C) $(CFLAGS) $(SOURCES) -o $(OUTDIR)/$(TARGET)  $(LFLAGS) -lpthread -lasound
