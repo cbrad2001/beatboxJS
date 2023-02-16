@@ -9,6 +9,7 @@
 #define NUM_CHANNELS  1
 #define SAMPLE_SIZE   (sizeof(short)) 	// bytes per sample
 #define SOURCE_FILE "/mnt/remote/myApps/beatbox-wav-files/100060__menegass__gui-drum-splash-hard.wav"
+#define SOURCE_FILE_2 "/mnt/remote/myApps/beatbox-wav-files/100056__menegass__gui-drum-cyn-hard.wav"
 
 // Store data of a single wave file read into memory.
 // Space is dynamically allocated; must be freed correctly!
@@ -39,9 +40,13 @@ int main()
 	wavedata_t sampleFile;
 	Audio_readWaveFileIntoMemory(SOURCE_FILE, &sampleFile);
 
+	wavedata_t sampleFile2;
+	Audio_readWaveFileIntoMemory(SOURCE_FILE_2, &sampleFile2);
+
 	// Play Audio
 	for (int i = 0; i < 5; i++) {
 		Audio_playFile(handle, &sampleFile);
+		Audio_playFile(handle, &sampleFile2);
 
 		// Drop and prepare to prevent underrun (need to stop buffer from reading with drop)
 		snd_pcm_drop(handle);
@@ -54,6 +59,7 @@ int main()
 	snd_pcm_hw_free(handle);
 	snd_pcm_close(handle);
 	free(sampleFile.pData);
+	free(sampleFile2.pData);
 
 	printf("Done!\n");
 	return 0;
