@@ -180,7 +180,7 @@ static void* joystickThread(void *vargp)
                 currentVol = AudioMixer_getVolume();
                 newVol = currentVol + 5;
                 AudioMixer_setVolume(newVol);
-                printf("Volume: %d\n", AudioMixer_getVolume());
+                printf("Changing volume to: %d/%d\n", AudioMixer_getVolume(), AUDIOMIXER_MAX_VOLUME);
                 sleepForMs(JOYSTICK_DEBOUNCE_MS);
                 break;
 
@@ -189,7 +189,7 @@ static void* joystickThread(void *vargp)
                 currentVol = AudioMixer_getVolume();
                 newVol = currentVol - 5;
                 AudioMixer_setVolume(newVol);
-                printf("Volume: %d\n", AudioMixer_getVolume());
+                printf("Changing volume to: %d/%d\n", AudioMixer_getVolume(),AUDIOMIXER_MAX_VOLUME);
                 sleepForMs(JOYSTICK_DEBOUNCE_MS);
                 break;
 
@@ -198,7 +198,7 @@ static void* joystickThread(void *vargp)
                 currentTempo = AudioMixer_getBPM();
                 newTempo = currentTempo + 5;
                 AudioMixer_setBPM(newTempo);
-                printf("Tempo: %d BPM\n", AudioMixer_getBPM());
+                printf("Changing tempo to: %d/%d BPM\n", AudioMixer_getBPM(),MAX_BPM);
                 sleepForMs(JOYSTICK_DEBOUNCE_MS);
                 break;
 
@@ -207,7 +207,7 @@ static void* joystickThread(void *vargp)
                 currentTempo = AudioMixer_getBPM();
                 newTempo = currentTempo - 5;
                 AudioMixer_setBPM(newTempo);
-                printf("Tempo: %d BPM\n", AudioMixer_getBPM());
+                printf("Changing tempo to: %d/%d BPM\n", AudioMixer_getBPM(),MAX_BPM);
                 sleepForMs(JOYSTICK_DEBOUNCE_MS);
                 break;
 
