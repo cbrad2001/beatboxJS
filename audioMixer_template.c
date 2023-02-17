@@ -11,6 +11,8 @@
 
 static snd_pcm_t *handle;
 
+#define EMPTY NULL
+
 #define DEFAULT_VOLUME 80
 
 #define SAMPLE_RATE 44100
@@ -35,13 +37,13 @@ typedef struct {
 	// sound has already been played (and hence where to start playing next).
 	int location;
 } playbackSound_t;
-// static playbackSound_t soundBites[MAX_SOUND_BITES];
+static playbackSound_t soundBites[MAX_SOUND_BITES];
 
 // Playback threading
 void* playbackThread(void* arg);
 static bool stopping = false;
 static pthread_t playbackThreadId;
-// static pthread_mutex_t audioMutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t audioMutex = PTHREAD_MUTEX_INITIALIZER;
 
 static int volume = 0;
 static int bpm = 0;
@@ -54,6 +56,9 @@ void AudioMixer_init(void)
 	// Initialize the currently active sound-bites being played
 	// REVISIT:- Implement this. Hint: set the pSound pointer to NULL for each
 	//     sound bite.
+	for (int i = 0; i < MAX_SOUND_BITES; i++)	//added
+		soundBites[i].pSound = EMPTY;
+	
 
 
 
@@ -157,10 +162,23 @@ void AudioMixer_queueSound(wavedata_t *pSound)
 	 *    because the application most likely doesn't want to crash just for
 	 *    not being able to play another wave file.
 	 */
-
-
-
-
+	
+	bool found = false;
+	pthread_mutex_lock(&audioMutex);				// 1.
+	{
+		for (int i = 0; i < MAX_SOUND_BITES; i++)	// 2.
+		{
+			if (soundBites[i].pSound == EMPTY)		// 3.
+			{
+				found = true;
+				soundBites[i].pSound = pSound; 		//queue the sound
+				break;
+			}
+		}
+	}
+	pthread_mutex_unlock(&audioMutex);
+	if (!found)	
+		perror("No free slot found in soundbites array!\n");	// 4.
 
 }
 
