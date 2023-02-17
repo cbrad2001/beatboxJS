@@ -1,8 +1,9 @@
 // Code for starting the server. Taken from the DynamicExample code example.
+// Note that this is different than the browser based JS that runs the UI of the web page.
 
 "use strict"
 
-var PORT_NUMBER = 8088
+const PORT_NUMBER = 8088
 
 var http = require('http')
 var fs = require('fs')
@@ -11,6 +12,12 @@ var mime = require('mime')
 
 var server = http.createServer((req, res) => {
     var filePath = false
+
+    // Squelch favicon requests
+    if (req.url == '/favicon.ico') {
+        squelchFavicon(res)
+        return
+    }
 
     if (req.url == '/') {
         filePath = 'index.html'
@@ -41,6 +48,11 @@ function serveStatic(res, absPath) {
     })
 }
 
+// Function for squelching favicon requests
+function squelchFavicon(res) {
+    console.log("Favicon requested. Squelching.")
+}
+
 // Function for sending the error 404 page
 function send404(res) {
     res.writeHead(404 , {'Content-Type' : 'text/plain'})
@@ -57,3 +69,6 @@ function sendFile(res, filePath, fileContents) {
 server.listen(PORT_NUMBER, () => {
     console.log("Server listening on port " + PORT_NUMBER)
 })
+
+var beatboxServer = require('./lib/beatbox_server')
+beatboxServer.listen(server)
