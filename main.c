@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include "include/input_joystick.h"
+#include "include/udp.h"
 
 #define SAMPLE_RATE   44100
 #define NUM_CHANNELS  1
@@ -32,6 +33,8 @@ int main()
         // sleep(1); 
     //}
 	Joystick_startListening();
+	udp_startSampling();
+	
 
     printf("Beginning play-back of %s\n", SOURCE_FILE);
 
@@ -65,6 +68,7 @@ int main()
 
 	Joystick_quit();
 	Joystick_stopListening();
+	udp_stopSampling();
 
 	printf("Done!\n");
 	return 0;

@@ -1,6 +1,7 @@
 {
     "files.associations": {
-        "pthread.h": "c"
+        "pthread.h": "c",
+        "drumbeats.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }
