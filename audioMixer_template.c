@@ -1,7 +1,7 @@
 // Incomplete implementation of an audio mixer. Search for "REVISIT" to find things
 // which are left as incomplete.
 // Note: Generates low latency audio on BeagleBone Black; higher latency found on host.
-#include "audioMixer_template.h"
+#include "include/audioMixer_template.h"
 #include <alsa/asoundlib.h>
 #include <stdbool.h>
 #include <pthread.h>
@@ -35,13 +35,13 @@ typedef struct {
 	// sound has already been played (and hence where to start playing next).
 	int location;
 } playbackSound_t;
-static playbackSound_t soundBites[MAX_SOUND_BITES];
+// static playbackSound_t soundBites[MAX_SOUND_BITES];
 
 // Playback threading
 void* playbackThread(void* arg);
 static bool stopping = false;
 static pthread_t playbackThreadId;
-static pthread_mutex_t audioMutex = PTHREAD_MUTEX_INITIALIZER;
+// static pthread_mutex_t audioMutex = PTHREAD_MUTEX_INITIALIZER;
 
 static int volume = 0;
 

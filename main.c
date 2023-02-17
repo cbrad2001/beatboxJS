@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+#include "include/input_joystick.h"
 
 #define SAMPLE_RATE   44100
 #define NUM_CHANNELS  1
@@ -30,6 +31,7 @@ int main()
         // play the base drum sound   
         // sleep(1); 
     //}
+	Joystick_startListening();
 
     printf("Beginning play-back of %s\n", SOURCE_FILE);
 
@@ -60,6 +62,9 @@ int main()
 	snd_pcm_close(handle);
 	free(sampleFile.pData);
 	free(sampleFile2.pData);
+
+	Joystick_quit();
+	Joystick_stopListening();
 
 	printf("Done!\n");
 	return 0;
