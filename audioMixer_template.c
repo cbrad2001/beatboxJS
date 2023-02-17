@@ -228,12 +228,6 @@ void AudioMixer_setVolume(int newVolume)
     snd_mixer_close(volHandle);
 }
 
-int AudioMixer_timeForHalfBeat()
-{
-	double time = SEC_PER_MIN / bpm / 2; 
-	int int_time = (int)time; 
-	return int_time;
-}
 
 int AudioMixer_getBPM()
 {
