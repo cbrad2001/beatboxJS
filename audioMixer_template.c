@@ -44,10 +44,12 @@ static pthread_t playbackThreadId;
 // static pthread_mutex_t audioMutex = PTHREAD_MUTEX_INITIALIZER;
 
 static int volume = 0;
+static int bpm = 0;
 
 void AudioMixer_init(void)
 {
 	AudioMixer_setVolume(DEFAULT_VOLUME);
+	AudioMixer_setBPM(DEFAULT_BPM);
 
 	// Initialize the currently active sound-bites being played
 	// REVISIT:- Implement this. Hint: set the pSound pointer to NULL for each
@@ -224,6 +226,28 @@ void AudioMixer_setVolume(int newVolume)
     snd_mixer_selem_set_playback_volume_all(elem, volume * max / 100);
 
     snd_mixer_close(volHandle);
+}
+
+int AudioMixer_timeForHalfBeat()
+{
+	double time = SEC_PER_MIN / bpm / 2; 
+	int int_time = (int)time; 
+	return int_time;
+}
+
+int AudioMixer_getBPM()
+{
+	return bpm;
+}
+
+void AudioMixer_setBPM(int new_bpm)
+{
+	if (bpm > MAX_BPM || bpm < MIN_BPM)
+	{
+		perror("Error: BPM must be in the range (40,300)\n");
+		return;
+	}
+	bpm=new_bpm;
 }
 
 

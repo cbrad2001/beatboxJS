@@ -9,6 +9,12 @@ typedef struct {
 } wavedata_t;
 
 #define AUDIOMIXER_MAX_VOLUME 100
+#define AUDIOMIXER_MIN_VOLUME 0
+#define MAX_BPM 300
+#define DEFAULT_BPM 120
+#define MIN_BPM 40
+#define SEC_PER_MIN 60
+
 
 // init() must be called before any other functions,
 // cleanup() must be called last to stop playback threads and free memory.
@@ -29,5 +35,13 @@ void AudioMixer_queueSound(wavedata_t *pSound);
 // http://stackoverflow.com/questions/6787318/set-alsa-master-volume-from-c-code
 int  AudioMixer_getVolume(void);
 void AudioMixer_setVolume(int newVolume);
+
+//conversion to wait for half a beat, as given in description
+int AudioMixer_timeForHalfBeat(void);
+
+//update/retrieve the BPM
+//perform check on max/min values for setting
+int AudioMixer_getBPM(void);
+void AudioMixer_setBPM(int new_bpm);
 
 #endif

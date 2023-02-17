@@ -164,7 +164,7 @@ static joystick_direction determine_press()
 
 static void* joystickThread(void *vargp)
 {
-    int currentVol, newVol; //, currentBMP, newBMP;
+    int currentVol, newVol, currentTempo, newTempo;
     init_joystick();
     printf("Starting thread for joystick listener\n");
     joystick_isRunning = true;
@@ -195,11 +195,19 @@ static void* joystickThread(void *vargp)
 
             case right:
                 //increase tempo by 5bpm
+                currentTempo = AudioMixer_getBPM();
+                newTempo = currentTempo + 5;
+                AudioMixer_setBPM(newTempo);
+                printf("Tempo: %d BPM\n", AudioMixer_getBPM());
                 sleepForMs(JOYSTICK_DEBOUNCE_MS);
                 break;
 
             case left:
                 //decrease tempo by 5bpm
+                currentTempo = AudioMixer_getBPM();
+                newTempo = currentTempo - 5;
+                AudioMixer_setBPM(newTempo);
+                printf("Tempo: %d BPM\n", AudioMixer_getBPM());
                 sleepForMs(JOYSTICK_DEBOUNCE_MS);
                 break;
 
