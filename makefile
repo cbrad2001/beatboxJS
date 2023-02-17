@@ -22,12 +22,13 @@ LFLAGS = -L$(HOME)/cmpt433/public/asound_lib_BBB
 #CFLAGS += -pg
 
 
-all: wav node
-	$(CC_C) $(CFLAGS) $(SOURCES) -o $(OUTDIR)/$(TARGET)  $(LFLAGS) -lpthread -lasound
+all: app node
 
-
+# Cleans up literally everything
 clean:
 	rm -f $(OUTDIR)/$(TARGET)
+	rm -rf $(OUTDIR)/beatbox-server-copy
+	rm -rf $(OUTDIR)/beatbox-wav-files
 
 # Copy the sound files, and the nodeJS server to the public directory.
 wav:
@@ -35,7 +36,7 @@ wav:
 	cp -R beatbox-wav-files/* $(PUBDIR)/beatbox-wav-files/ 
 node:
 	mkdir -p $(PUBDIR)/beatbox-server-copy/ 
-	cp -R as3-server/* $(PUBDIR)/beatbox-server-copy/ 
+	cp -R server-code/* $(PUBDIR)/beatbox-server-copy/ 
 	cd $(PUBDIR)/beatbox-server-copy/ && npm install
 	
 app: wav
