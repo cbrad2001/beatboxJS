@@ -13,7 +13,7 @@
 
 #include "include/drumBeats.h"
 #include "include/input_joystick.h"
-#include "include/audioMixer_template.h"
+#include "include/audioMixer.h"
 
 /**
  * 

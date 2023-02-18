@@ -7,7 +7,7 @@
 #include <time.h>
 #include <unistd.h>
 
-#include "include/audioMixer_template.h"
+#include "include/audioMixer.h"
 #include "include/helpers.h"
 
 typedef enum{

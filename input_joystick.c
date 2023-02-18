@@ -6,7 +6,7 @@
 #include <pthread.h>
 
 #include "include/helpers.h"
-#include "include/audioMixer_template.h"
+#include "include/audioMixer.h"
 
 #define JOYSTICK_DEBOUNCE_MS 100
 

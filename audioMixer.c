@@ -1,7 +1,7 @@
 // Incomplete implementation of an audio mixer. Search for "REVISIT" to find things
 // which are left as incomplete.
 // Note: Generates low latency audio on BeagleBone Black; higher latency found on host.
-#include "include/audioMixer_template.h"
+#include "include/audioMixer.h"
 #include <alsa/asoundlib.h>
 #include <stdbool.h>
 #include <pthread.h>
@@ -56,10 +56,10 @@ void AudioMixer_init(void)
 	// Initialize the currently active sound-bites being played
 	// REVISIT:- Implement this. Hint: set the pSound pointer to NULL for each
 	//     sound bite.
-	for (int i = 0; i < MAX_SOUND_BITES; i++)	//added
+	for (int i = 0; i < MAX_SOUND_BITES; i++){	//added
 		soundBites[i].pSound = EMPTY;
-	
-
+		soundBites[i].location = 0;
+	}
 
 
 
@@ -262,6 +262,21 @@ void AudioMixer_setBPM(int new_bpm)
 	bpm=new_bpm;
 }
 
+/**
+ * - When adding values, ensure there is not an overflow. Any values which would
+ *   greater than SHRT_MAX should be clipped to SHRT_MAX; likewise for underflow.
+ * - Don't overflow any arrays!
+*/
+static short handleOverflow(int val)
+{
+	if (val >= SHRT_MAX)
+		val = SHRT_MAX;
+
+	if (val < SHRT_MIN)
+		val = SHRT_MIN;
+	
+	return (short)val;
+}
 
 // Fill the `buff` array with new PCM values to output.
 //    `buff`: buffer to fill with new PCM data from sound bites.
@@ -308,13 +323,38 @@ static void fillPlaybackBuffer(short *buff, int size)
 	 *          ... use someNum vs myArray[someIdx].value;
 	 *
 	 */
-
-
-
-
-
-
-
+	memset(playbackBuffer,0,size*sizeof(*playbackBuffer));	//1. 
+	pthread_mutex_lock(&audioMutex);		//2.
+	{
+		for (int i = 0; i < MAX_SOUND_BITES; i++)
+		{
+			
+			if (soundBites[i].pSound != EMPTY)	//3. 
+			{
+				wavedata_t *curr_sound = soundBites[i].pSound;
+				int sound_offset = soundBites[i].location;	//store
+				
+				// Record that this portion of the sound bite has been played back by incrementing
+	 			// the location inside the data where play-back currently is.
+				int curr_pos = 0;
+				while (curr_pos < size && 								//position within buffer size
+					   sound_offset + curr_pos < curr_sound->numSamples)//offset within file
+				{
+					int at_offset = (int)(playbackBuffer[curr_pos] + curr_sound->pData[sound_offset]);
+					playbackBuffer[curr_pos] = handleOverflow(at_offset);
+					curr_pos++;
+					sound_offset++;
+				}
+				soundBites[i].location = sound_offset;	//update offset after playback
+				//If you have now played back the entire sample, free the slot in the soundBites[] array.
+				if (soundBites[i].location >= curr_sound->numSamples)
+				{
+					curr_sound = EMPTY;
+				}
+			}
+		} 
+	}
+	pthread_mutex_unlock(&audioMutex);
 }
 
 
