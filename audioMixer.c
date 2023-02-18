@@ -8,6 +8,11 @@
 #include <limits.h>
 #include <alloca.h> // needed for mixer
 
+#include "include/drumBeats.h"
+
+#define BASE_DRUM   "/mnt/remote/myApps/beatbox-wav-files/100051__menegass__gui-drum-bd-hard.wav"
+#define HI_HAT_DRUM "/mnt/remote/myApps/beatbox-wav-files/100053__menegass__gui-drum-cc.wav"
+#define SNARE_DRUM  "/mnt/remote/myApps/beatbox-wav-files/100059__menegass__gui-drum-snare-soft.wav"
 
 static snd_pcm_t *handle;
 
@@ -48,11 +53,45 @@ static pthread_mutex_t audioMutex = PTHREAD_MUTEX_INITIALIZER;
 static int volume = 0;
 static int bpm = 0;
 
+wavedata_t drumKit[3];	//contains all drum sounds
+
+
+void AudioMixer_Druminit()
+{
+	wavedata_t hihat,baseDrum,snareDrum;
+	// Load wave file we want to play:
+	AudioMixer_readWaveFileIntoMemory(HI_HAT_DRUM, &hihat);
+	AudioMixer_readWaveFileIntoMemory(BASE_DRUM, &baseDrum);
+	AudioMixer_readWaveFileIntoMemory(SNARE_DRUM, &snareDrum);
+
+	drumKit[0] = hihat;
+	drumKit[1] = baseDrum;
+	drumKit[2] = snareDrum;
+
+}
+
+wavedata_t* AudioMixer_getDrumkit()
+{
+	return drumKit;
+}
+
+// Cleanup, letting the music in buffer play out (drain), then close and free.
+void AudioMixer_Drumcleanup()
+{
+	snd_pcm_drain(handle);
+	snd_pcm_hw_free(handle);
+	snd_pcm_close(handle);
+	free(drumKit[0].pData);
+	free(drumKit[1].pData);
+    free(drumKit[2].pData);
+}
+
 void AudioMixer_init(void)
 {
 	AudioMixer_setVolume(DEFAULT_VOLUME);
 	AudioMixer_setBPM(DEFAULT_BPM);
-
+	
+	// Drum_init();
 	// Initialize the currently active sound-bites being played
 	// REVISIT:- Implement this. Hint: set the pSound pointer to NULL for each
 	//     sound bite.
@@ -60,8 +99,6 @@ void AudioMixer_init(void)
 		soundBites[i].pSound = EMPTY;
 		soundBites[i].location = 0;
 	}
-
-
 
 	// Open the PCM output
 	int err = snd_pcm_open(&handle, "default", SND_PCM_STREAM_PLAYBACK, 0);
@@ -138,6 +175,7 @@ void AudioMixer_readWaveFileIntoMemory(char *fileName, wavedata_t *pSound)
 
 void AudioMixer_freeWaveFileData(wavedata_t *pSound)
 {
+	// Drum_cleanup();
 	pSound->numSamples = 0;
 	free(pSound->pData);
 	pSound->pData = NULL;

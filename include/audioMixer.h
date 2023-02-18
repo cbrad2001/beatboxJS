@@ -14,6 +14,10 @@ typedef struct {
 #define DEFAULT_BPM 120
 #define MIN_BPM 40
 
+//code for specific drum types, setup and teardown
+void AudioMixer_Druminit();
+wavedata_t* AudioMixer_getDrumkit();
+void AudioMixer_Drumcleanup();
 
 // init() must be called before any other functions,
 // cleanup() must be called last to stop playback threads and free memory.
