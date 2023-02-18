@@ -70,5 +70,6 @@ server.listen(PORT_NUMBER, () => {
     console.log("Server listening on port " + PORT_NUMBER)
 })
 
+const UDP_PORT = 8089
 var beatboxServer = require('./lib/beatbox_server')
-beatboxServer.listen(server)
+beatboxServer.listen(server, UDP_PORT)

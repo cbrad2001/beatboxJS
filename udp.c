@@ -104,6 +104,7 @@ static void* udpCommandThread(void *vargp)
 			strcat(sendBuffer, "volume ##   -- Update the current volume (## = {00-99}).\n");
 			strcat(sendBuffer, "tempo ##    -- Update the current tempo BPM (## = {00-99}).\n");
 			strcat(sendBuffer, "sound       -- Play any one of the sounds used in the drum beat.\n");
+            strcat(sendBuffer, "uptime      -- Get the beatbox's current up time.\n");
 			strcat(sendBuffer, "stop        -- Cause the server program to end.\n");
             strcat(sendBuffer, "<enter>     -- Repeat last command.\n");
 
