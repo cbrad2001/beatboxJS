@@ -117,7 +117,7 @@ static void* joystickThread(void *vargp)
 {
     int currentVol, newVol, currentTempo, newTempo;
     init_joystick();
-    printf("Starting thread for joystick listener\n");
+    printf("Starting joystick listener thread!\n");
     joystick_isRunning = true;
 
 

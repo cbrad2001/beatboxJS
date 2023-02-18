@@ -18,8 +18,6 @@ static snd_pcm_t *handle;
 
 #define EMPTY NULL
 
-#define DEFAULT_VOLUME 80
-
 #define SAMPLE_RATE 44100
 #define NUM_CHANNELS 1
 #define SAMPLE_SIZE (sizeof(short)) 			// bytes per sample
@@ -28,7 +26,6 @@ static snd_pcm_t *handle;
 
 static unsigned long playbackBufferSize = 0;
 static short *playbackBuffer = NULL;
-
 
 // Currently active (waiting to be played) sound bites
 #define MAX_SOUND_BITES 30
@@ -50,8 +47,8 @@ static bool stopping = false;
 static pthread_t playbackThreadId;
 static pthread_mutex_t audioMutex = PTHREAD_MUTEX_INITIALIZER;
 
-static int volume = 0;
-static int bpm = 0;
+static int volume = DEFAULT_VOLUME;
+static int bpm = DEFAULT_BPM;
 
 wavedata_t drumKit[3];	//contains all drum sounds
 
@@ -73,17 +70,6 @@ void AudioMixer_Druminit()
 wavedata_t* AudioMixer_getDrumkit()
 {
 	return drumKit;
-}
-
-// Cleanup, letting the music in buffer play out (drain), then close and free.
-void AudioMixer_Drumcleanup()
-{
-	snd_pcm_drain(handle);
-	snd_pcm_hw_free(handle);
-	snd_pcm_close(handle);
-	free(drumKit[0].pData);
-	free(drumKit[1].pData);
-    free(drumKit[2].pData);
 }
 
 void AudioMixer_init(void)
@@ -210,11 +196,13 @@ void AudioMixer_queueSound(wavedata_t *pSound)
 			{
 				found = true;
 				soundBites[i].pSound = pSound; 		//queue the sound
+				soundBites[i].location = 0;
+				pthread_mutex_unlock(&audioMutex);
 				break;
 			}
 		}
 	}
-	pthread_mutex_unlock(&audioMutex);
+
 	if (!found)	
 		perror("No free slot found in soundbites array!\n");	// 4.
 
@@ -236,7 +224,12 @@ void AudioMixer_cleanup(void)
 	// (note that any wave files read into wavedata_t records must be freed
 	//  in addition to this by calling AudioMixer_freeWaveFileData() on that struct.)
 	free(playbackBuffer);
+	
 	playbackBuffer = NULL;
+
+	free(drumKit[0].pData);
+	free(drumKit[1].pData);
+    free(drumKit[2].pData);
 
 	printf("Done stopping audio...\n");
 	fflush(stdout);

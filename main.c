@@ -9,6 +9,7 @@
 #include "include/terminal.h"
 #include "include/drumBeats.h"
 #include "include/audioMixer.h"
+#include "include/periodTimer.h"
 
 // #define SAMPLE_RATE   44100
 // #define NUM_CHANNELS  1
@@ -35,10 +36,11 @@ int main()
         // play the base drum sound   
         // sleep(1); 
     //}
+	Period_init();
 	AudioMixer_init();
 	Joystick_startListening();
 	udp_startSampling();
-	// Drum_startPlaying();
+	Drum_startPlaying();
 	Terminal_startPrinting();
 	
 
@@ -73,10 +75,11 @@ int main()
 	// free(sampleFile2.pData);
 
 	Terminal_stopPrinting();
-	// Drum_stopPlaying();
+	Drum_stopPlaying();
 	udp_stopSampling();
 	Joystick_stopListening();
 	AudioMixer_cleanup();
+	Period_cleanup();
 
 	printf("Done!\n");
 	return 0;

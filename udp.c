@@ -205,5 +205,6 @@ static void* udpCommandThread(void *vargp)
 
     }
     close(socketDescriptor);
+    printf("UDP thread ending!\n");
     return 0;
 }
