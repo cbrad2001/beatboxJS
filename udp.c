@@ -175,8 +175,8 @@ static void* udpCommandThread(void *vargp)
             memset(sendBuffer, 0, MAX_LEN);             // 1024 bytes per buffer
 
             if (n < 0 || n > 2 ){                       // invalid sound
-                char *errMsg = "Invalid tempo. Set to between ";
-                sprintf(sendBuffer, "%s%d-%d.\n", errMsg,MIN_BPM,MAX_BPM);
+                char *errMsg = "Invalid sound. Set to ";
+                sprintf(sendBuffer, "%s%d-%d.\n", errMsg,0,2);
                 sendto(socketDescriptor,sendBuffer, strnlen(sendBuffer,MAX_LEN),0,(struct sockaddr *) &sock, sock_sz);
             }
             else
