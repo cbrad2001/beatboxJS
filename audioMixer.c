@@ -8,12 +8,15 @@
 #include <limits.h>
 #include <alloca.h> // needed for mixer
 
+#include "include/drumBeats.h"
+
+#define BASE_DRUM   "/mnt/remote/myApps/beatbox-wav-files/100051__menegass__gui-drum-bd-hard.wav"
+#define HI_HAT_DRUM "/mnt/remote/myApps/beatbox-wav-files/100053__menegass__gui-drum-cc.wav"
+#define SNARE_DRUM  "/mnt/remote/myApps/beatbox-wav-files/100059__menegass__gui-drum-snare-soft.wav"
 
 static snd_pcm_t *handle;
 
 #define EMPTY NULL
-
-#define DEFAULT_VOLUME 80
 
 #define SAMPLE_RATE 44100
 #define NUM_CHANNELS 1
@@ -23,7 +26,6 @@ static snd_pcm_t *handle;
 
 static unsigned long playbackBufferSize = 0;
 static short *playbackBuffer = NULL;
-
 
 // Currently active (waiting to be played) sound bites
 #define MAX_SOUND_BITES 30
@@ -45,14 +47,37 @@ static bool stopping = false;
 static pthread_t playbackThreadId;
 static pthread_mutex_t audioMutex = PTHREAD_MUTEX_INITIALIZER;
 
-static int volume = 0;
-static int bpm = 0;
+static int volume = DEFAULT_VOLUME;
+static int bpm = DEFAULT_BPM;
+
+wavedata_t drumKit[3];	//contains all drum sounds
+
+
+void AudioMixer_Druminit()
+{
+	wavedata_t hihat,baseDrum,snareDrum;
+	// Load wave file we want to play:
+	AudioMixer_readWaveFileIntoMemory(HI_HAT_DRUM, &hihat);
+	AudioMixer_readWaveFileIntoMemory(BASE_DRUM, &baseDrum);
+	AudioMixer_readWaveFileIntoMemory(SNARE_DRUM, &snareDrum);
+
+	drumKit[0] = hihat;
+	drumKit[1] = baseDrum;
+	drumKit[2] = snareDrum;
+
+}
+
+wavedata_t* AudioMixer_getDrumkit()
+{
+	return drumKit;
+}
 
 void AudioMixer_init(void)
 {
 	AudioMixer_setVolume(DEFAULT_VOLUME);
 	AudioMixer_setBPM(DEFAULT_BPM);
-
+	
+	// Drum_init();
 	// Initialize the currently active sound-bites being played
 	// REVISIT:- Implement this. Hint: set the pSound pointer to NULL for each
 	//     sound bite.
@@ -60,8 +85,6 @@ void AudioMixer_init(void)
 		soundBites[i].pSound = EMPTY;
 		soundBites[i].location = 0;
 	}
-
-
 
 	// Open the PCM output
 	int err = snd_pcm_open(&handle, "default", SND_PCM_STREAM_PLAYBACK, 0);
@@ -138,6 +161,7 @@ void AudioMixer_readWaveFileIntoMemory(char *fileName, wavedata_t *pSound)
 
 void AudioMixer_freeWaveFileData(wavedata_t *pSound)
 {
+	// Drum_cleanup();
 	pSound->numSamples = 0;
 	free(pSound->pData);
 	pSound->pData = NULL;
@@ -172,11 +196,15 @@ void AudioMixer_queueSound(wavedata_t *pSound)
 			{
 				found = true;
 				soundBites[i].pSound = pSound; 		//queue the sound
+				soundBites[i].location = 0;
+				pthread_mutex_unlock(&audioMutex);
+
+				printf("DEBUG: queued at %d\n", i);
 				break;
 			}
 		}
 	}
-	pthread_mutex_unlock(&audioMutex);
+
 	if (!found)	
 		perror("No free slot found in soundbites array!\n");	// 4.
 
@@ -198,7 +226,12 @@ void AudioMixer_cleanup(void)
 	// (note that any wave files read into wavedata_t records must be freed
 	//  in addition to this by calling AudioMixer_freeWaveFileData() on that struct.)
 	free(playbackBuffer);
+	
 	playbackBuffer = NULL;
+
+	free(drumKit[0].pData);
+	free(drumKit[1].pData);
+    free(drumKit[2].pData);
 
 	printf("Done stopping audio...\n");
 	fflush(stdout);
@@ -254,7 +287,7 @@ int AudioMixer_getBPM()
 
 void AudioMixer_setBPM(int new_bpm)
 {
-	if (bpm > MAX_BPM || bpm < MIN_BPM)
+	if (new_bpm > MAX_BPM || new_bpm < MIN_BPM)
 	{
 		perror("Error: BPM must be in the range (40,300)\n");
 		return;
@@ -350,6 +383,7 @@ static void fillPlaybackBuffer(short *buff, int size)
 				if (soundBites[i].location >= curr_sound->numSamples)
 				{
 					curr_sound = EMPTY;
+					printf("DEBUG: freed at %i\n", i);
 				}
 			}
 		} 

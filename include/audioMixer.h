@@ -9,11 +9,15 @@ typedef struct {
 } wavedata_t;
 
 #define AUDIOMIXER_MAX_VOLUME 100
+#define DEFAULT_VOLUME 80
 #define AUDIOMIXER_MIN_VOLUME 0
 #define MAX_BPM 300
 #define DEFAULT_BPM 120
 #define MIN_BPM 40
 
+//code for specific drum types, setup and teardown
+void AudioMixer_Druminit();
+wavedata_t* AudioMixer_getDrumkit();
 
 // init() must be called before any other functions,
 // cleanup() must be called last to stop playback threads and free memory.

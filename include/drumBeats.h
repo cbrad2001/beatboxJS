@@ -2,15 +2,14 @@
 #ifndef DRUM_BEAT_H
 #define DRUM_BEAT_H
 
-#define BASE_DRUM   "/mnt/remote/myApps/beatbox-wav-files/100051__menegass__gui-drum-bd-hard.wav"
-#define HI_HAT_DRUM "100053__menegass__gui-drum-cc.wav"
-#define SNARE_DRUM  "100059__menegass__gui-drum-snare-soft.wav"
-
 // Start/Stop thread that actively listens to the mode of the drumming 
 void Drum_startPlaying();
 void Drum_stopPlaying();
 
 void Drum_quit();
+
+//retrieves current mode
+int Drum_getMode();
 
 //drum modes:
 void Drum_off();

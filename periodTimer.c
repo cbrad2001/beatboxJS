@@ -3,11 +3,11 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "include/periodTimer.h"
 
 // Written by Brian Fraser
-
 
 
 // Data collected

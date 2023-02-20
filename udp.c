@@ -14,6 +14,8 @@
 #include "include/drumBeats.h"
 #include "include/input_joystick.h"
 #include "include/audioMixer.h"
+#include "include/terminal.h"
+#include "include/drumBeats.h"
 
 /**
  * 
@@ -178,7 +180,8 @@ static void* udpCommandThread(void *vargp)
             sprintf(sendBuffer, "Program terminating: (enter to quit)\n");
             sendto(socketDescriptor,sendBuffer, strnlen(sendBuffer,MAX_LEN),0,(struct sockaddr *) &sock, sock_sz);
             Joystick_quit();
-            // Drum_quit();
+            Drum_quit();
+            Terminal_quit();
             // STOP ALL RELEVANT THREADS HERE
 
             isConnected = false;
@@ -203,5 +206,6 @@ static void* udpCommandThread(void *vargp)
 
     }
     close(socketDescriptor);
+    printf("UDP thread ending!\n");
     return 0;
 }
