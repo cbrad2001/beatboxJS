@@ -23,7 +23,7 @@ static pthread_t drumThreadID;
 static void* drumBeatThread(void *vargp);
 bool drum_isPlaying;
 
-wavedata_t* drumKitPlayer;
+static wavedata_t* drumKitPlayer;
 
 void Drum_startPlaying()
 {
@@ -76,7 +76,7 @@ static long drumBeat_timeForHalfBeat()
 
 void Drum_off(){
     //play nothing
-    
+
     //repeat
 }
 
