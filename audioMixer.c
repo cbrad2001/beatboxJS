@@ -199,7 +199,7 @@ void AudioMixer_queueSound(wavedata_t *pSound)
 				soundBites[i].location = 0;
 				pthread_mutex_unlock(&audioMutex);
 
-				printf("DEBUG: queued at %d\n", i);
+				// printf("DEBUG: queued at %d\n", i);
 				break;
 			}
 		}
@@ -383,7 +383,7 @@ static void fillPlaybackBuffer(short *buff, int size)
 				if (soundBites[i].location >= curr_sound->numSamples)
 				{
 					curr_sound = EMPTY;
-					printf("DEBUG: freed at %i\n", i);
+					// printf("DEBUG: freed at %i\n", i);
 				}
 			}
 		} 
