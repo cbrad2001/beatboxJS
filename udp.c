@@ -131,7 +131,7 @@ static void* udpCommandThread(void *vargp)
                     break;
                 case 1:
                     //mode = 1;
-                    // Drum_rock();
+                    Drum_rock();
                     break;
                 case 2: 
                     //mode = 2
@@ -159,20 +159,20 @@ static void* udpCommandThread(void *vargp)
             sprintf(sendBuffer, "Successfully set volume to %d.\n", AudioMixer_getVolume());
             sendto(socketDescriptor,sendBuffer, strnlen(sendBuffer,MAX_LEN),0,(struct sockaddr *) &sock, sock_sz);
         }
+        else if (strncmp(recvBuffer, CMD_TEMPO, 5) ==0) //Update volume
+        {
+            char *startOfN = recvBuffer + 5;            // 5th position is the start of n
+            int n = atoi(startOfN);
+            memset(sendBuffer, 0, MAX_LEN);             // 1024 bytes per buffer
 
-        // else if (strncmp(recvBuffer, CMD_TEMPO, 5) ==0)//Update volume
-        // {
-        //     char *startOfN = recvBuffer + 5;            // 5th position is the start of n
-        //     int n = atoi(startOfN);
-        //     memset(sendBuffer, 0, MAX_LEN);             // 1024 bytes per buffer
-
-        //     if (n < 0 || n > 99 ){                      // invalid volume
-        //         char *errMsg = "Invalid tempo. Set to between 0-99";
-        //         sprintf(sendBuffer, "%s.\n", errMsg);
-        //         sendto(socketDescriptor,sendBuffer, strnlen(sendBuffer,MAX_LEN),0,(struct sockaddr *) &sock, sock_sz);
-        //     }
-        //     sendto(socketDescriptor,sendBuffer, strnlen(sendBuffer,MAX_LEN),0,(struct sockaddr *) &sock, sock_sz);
-        // }
+            if (n <= MIN_BPM || n >= MAX_BPM ){         // invalid volume
+                char *errMsg = "Invalid tempo. Set to between ";
+                sprintf(sendBuffer, "%s%d-%d.\n", errMsg,MIN_BPM,MAX_BPM);
+                sendto(socketDescriptor,sendBuffer, strnlen(sendBuffer,MAX_LEN),0,(struct sockaddr *) &sock, sock_sz);
+            }
+            AudioMixer_setBPM(n);
+            sendto(socketDescriptor,sendBuffer, strnlen(sendBuffer,MAX_LEN),0,(struct sockaddr *) &sock, sock_sz);
+        }
 
         else if (strncmp(recvBuffer, CMD_STOP,4) == 0)  // shuts off all threads; quits local udp and remote sampler
         {
