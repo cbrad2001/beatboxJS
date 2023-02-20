@@ -199,7 +199,7 @@ void AudioMixer_queueSound(wavedata_t *pSound)
 				soundBites[i].location = 0;
 				pthread_mutex_unlock(&audioMutex);
 
-				printf("DEBUG: queued at %d\n", i);
+				// printf("DEBUG: queued at %d\n", i);
 				break;
 			}
 		}
@@ -366,12 +366,14 @@ static void fillPlaybackBuffer(short *buff, int size)
 			{
 				wavedata_t *curr_sound = soundBites[i].pSound;
 				int sound_offset = soundBites[i].location;	//store
+				int sound_samples = curr_sound->numSamples;
+
 				
 				// Record that this portion of the sound bite has been played back by incrementing
 	 			// the location inside the data where play-back currently is.
 				int curr_pos = 0;
 				while (curr_pos < size && 								//position within buffer size
-					   sound_offset + curr_pos < curr_sound->numSamples)//offset within file
+					   sound_offset + curr_pos < sound_samples)//offset within file
 				{
 					int at_offset = (int)(playbackBuffer[curr_pos] + curr_sound->pData[sound_offset]);
 					playbackBuffer[curr_pos] = handleOverflow(at_offset);
@@ -380,10 +382,10 @@ static void fillPlaybackBuffer(short *buff, int size)
 				}
 				soundBites[i].location = sound_offset;	//update offset after playback
 				//If you have now played back the entire sample, free the slot in the soundBites[] array.
-				if (soundBites[i].location >= curr_sound->numSamples)
+				if (soundBites[i].location >= sound_samples)
 				{
-					curr_sound = EMPTY;
-					printf("DEBUG: freed at %i\n", i);
+					soundBites[i].pSound = EMPTY;
+					// printf("DEBUG: freed at %i\n", i);
 				}
 			}
 		} 
