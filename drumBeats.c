@@ -7,8 +7,9 @@
 #include <time.h>
 #include <unistd.h>
 
-#include "include/audioMixer_template.h"
+#include "include/audioMixer.h"
 #include "include/helpers.h"
+#include "include/periodTimer.h"
 
 typedef enum{
     off,
@@ -17,48 +18,24 @@ typedef enum{
 } drum_mode;
 
 drum_mode current;
-static int active_bpm;
 
 static pthread_t drumThreadID;
 static void* drumBeatThread(void *vargp);
 bool drum_isPlaying;
 
-// static wavedata_t hihat, baseDrum, snareDrum;
-// static snd_pcm_t *handle;
-
-// static void Drum_init()
-// {
-// 	// Configure Output Device
-// 	handle = Audio_openDevice();
-
-// 	// Load wave file we want to play:
-// 	Audio_readWaveFileIntoMemory(HI_HAT_DRUM, &hihat);
-// 	Audio_readWaveFileIntoMemory(BASE_DRUM, &baseDrum);
-// 	Audio_readWaveFileIntoMemory(SNARE_DRUM, &snareDrum);
-// }
-
-// // Cleanup, letting the music in buffer play out (drain), then close and free.
-// static void Drum_cleanup()
-// {
-// 	snd_pcm_drain(handle);
-// 	snd_pcm_hw_free(handle);
-// 	snd_pcm_close(handle);
-// 	free(hihat.pData);
-// 	free(baseDrum.pData);
-//     free(snareDrum.pData);
-// }
+wavedata_t* drumKitPlayer;
 
 void Drum_startPlaying()
 {
-    // Drum_init();
-    active_bpm = AudioMixer_getBPM();
+    drumKitPlayer = AudioMixer_getDrumkit();
+    AudioMixer_Druminit();
     drum_isPlaying = true;
+    current = 1;            //temp default
     pthread_create(&drumThreadID,NULL,&drumBeatThread,NULL);
 }
 
 void Drum_stopPlaying()
 {
-    // Drum_cleanup();
     drum_isPlaying = false;
     pthread_join(drumThreadID,NULL);
 }
@@ -68,13 +45,19 @@ void Drum_quit()
     drum_isPlaying = false;
 }
 
+int Drum_getMode()
+{
+    return (int)current;
+}
+
 // conversion to wait for half a beat, as given in description
-// static int drumBeat_timeForHalfBeat(int bpm)
-// {
-// 	double time = SEC_PER_MIN / bpm / 2; 
-// 	int int_time = (int)time; 
-// 	return int_time;
-// }
+static long drumBeat_timeForHalfBeat()
+{
+	int active_bpm = AudioMixer_getBPM();
+    double bps = SEC_PER_MIN/(double)active_bpm;
+    bps = bps/2.0;
+    return bps * MS_PER_SEC;
+}
 
 /// DRUM MODES:
 
@@ -85,22 +68,27 @@ void Drum_off(){
 //rock beat as described in section 1 of as3
 void Drum_rock()
 {
-    // active_bpm = AudioMixer_getBPM();
-    // int play_quarter_note_time = drumBeat_timeForHalfBeat(active_bpm) * MS_PER_SEC;
+    long play_quarter_note_time = drumBeat_timeForHalfBeat();
+
+    printf("sleep time: %li\n", play_quarter_note_time);
+    
     //1: hihat + base
-
-
+    AudioMixer_queueSound(&drumKitPlayer[0]);
+    AudioMixer_queueSound(&drumKitPlayer[1]);
+    sleepForMs(play_quarter_note_time);
     //1.5 hihat
-        //play sound
-    // sleepForMs(play_quarter_note_time)
+    AudioMixer_queueSound(&drumKitPlayer[0]);
+    sleepForMs(play_quarter_note_time);
     //2 hihat+snare
-        //play sound
+    AudioMixer_queueSound(&drumKitPlayer[0]);
+    AudioMixer_queueSound(&drumKitPlayer[2]);
+    sleepForMs(play_quarter_note_time);
     // sleepForMs(play_quarter_note_time)
     //2.5 hihat
-        //play sound
-    // sleepForMs(play_quarter_note_time)
+    AudioMixer_queueSound(&drumKitPlayer[0]);
+    sleepForMs(play_quarter_note_time);
 
-
+    //repeat
 }
 
 
@@ -114,9 +102,11 @@ void Drum_custom()
 //plays the drum beat according to the selected mode
 static void* drumBeatThread(void *vargp)
 {
+    printf("Drum Cycle thread starting!\n");
     drum_isPlaying = true;
     while(drum_isPlaying)
     {
+        Period_markEvent(PERIOD_EVENT_PLAYBACK_BUFFER);     //THIS MAY NEED TO RELOCATE
         if (current == off)
         {
             Drum_off();
@@ -134,6 +124,7 @@ static void* drumBeatThread(void *vargp)
             perror("drum mode not selected\n");
             sleep(10);
         }
+        // sleep(1);
     }
     printf("Mode cycle thread ending\n");
     return 0;

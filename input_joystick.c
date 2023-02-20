@@ -6,7 +6,7 @@
 #include <pthread.h>
 
 #include "include/helpers.h"
-#include "include/audioMixer_template.h"
+#include "include/audioMixer.h"
 
 #define JOYSTICK_DEBOUNCE_MS 100
 
@@ -117,7 +117,7 @@ static void* joystickThread(void *vargp)
 {
     int currentVol, newVol, currentTempo, newTempo;
     init_joystick();
-    printf("Starting thread for joystick listener\n");
+    printf("Starting joystick listener thread!\n");
     joystick_isRunning = true;
 
 
