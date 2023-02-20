@@ -198,6 +198,8 @@ void AudioMixer_queueSound(wavedata_t *pSound)
 				soundBites[i].pSound = pSound; 		//queue the sound
 				soundBites[i].location = 0;
 				pthread_mutex_unlock(&audioMutex);
+
+				printf("DEBUG: queued at %d\n", i);
 				break;
 			}
 		}
@@ -285,7 +287,7 @@ int AudioMixer_getBPM()
 
 void AudioMixer_setBPM(int new_bpm)
 {
-	if (bpm > MAX_BPM || bpm < MIN_BPM)
+	if (new_bpm > MAX_BPM || new_bpm < MIN_BPM)
 	{
 		perror("Error: BPM must be in the range (40,300)\n");
 		return;
@@ -381,6 +383,7 @@ static void fillPlaybackBuffer(short *buff, int size)
 				if (soundBites[i].location >= curr_sound->numSamples)
 				{
 					curr_sound = EMPTY;
+					printf("DEBUG: freed at %i\n", i);
 				}
 			}
 		} 

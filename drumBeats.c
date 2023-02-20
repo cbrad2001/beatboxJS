@@ -123,7 +123,7 @@ static void* drumBeatThread(void *vargp)
             perror("drum mode not selected\n");
             sleep(10);
         }
-        
+        sleep(1);
     }
     printf("Mode cycle thread ending\n");
     return 0;
