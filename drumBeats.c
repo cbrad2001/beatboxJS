@@ -105,11 +105,117 @@ void Drum_rock()
     //repeat
 }
 
-
+// https://youtu.be/4lgYw5DOZx8 themed after Rush's Tom Sawyer
 void Drum_custom()
 {
+    long play_quarter_note_time = drumBeat_timeForHalfBeat();
+
+    //1: base
+    AudioMixer_queueSound(&drumKitPlayer[1]);
+    sleepForMs(play_quarter_note_time);
+    //1.25 
+    //no sound
+    sleepForMs(play_quarter_note_time);
+    //1.5 hihat
+    AudioMixer_queueSound(&drumKitPlayer[0]);
+    sleepForMs(play_quarter_note_time);
+    //1.75 hihat
+    AudioMixer_queueSound(&drumKitPlayer[0]);
+    sleepForMs(play_quarter_note_time);
+    //2 hihat + snare
+    AudioMixer_queueSound(&drumKitPlayer[0]);
+    AudioMixer_queueSound(&drumKitPlayer[2]);
+    sleepForMs(play_quarter_note_time);
+    //2.25 hihat
+    AudioMixer_queueSound(&drumKitPlayer[0]);
+    sleepForMs(play_quarter_note_time);
+    //2.5 hihat
+    AudioMixer_queueSound(&drumKitPlayer[0]);
+    sleepForMs(play_quarter_note_time);
+    //2.75 hihat
+    AudioMixer_queueSound(&drumKitPlayer[0]);
+    sleepForMs(play_quarter_note_time);
+    //3 hihat
+    AudioMixer_queueSound(&drumKitPlayer[0]);
+    sleepForMs(play_quarter_note_time);
+    //3.25 hihat
+    AudioMixer_queueSound(&drumKitPlayer[0]);
+    sleepForMs(play_quarter_note_time);
+    //3.5 hihat+base
+    AudioMixer_queueSound(&drumKitPlayer[0]);
+    AudioMixer_queueSound(&drumKitPlayer[1]);
+    sleepForMs(play_quarter_note_time);
+    //3.75 hihat
+    AudioMixer_queueSound(&drumKitPlayer[0]);
+    sleepForMs(play_quarter_note_time);
+    //4 hihat + snare
+    AudioMixer_queueSound(&drumKitPlayer[0]);
+    AudioMixer_queueSound(&drumKitPlayer[2]);
+    sleepForMs(play_quarter_note_time);
+    //4.25 hihat
+    AudioMixer_queueSound(&drumKitPlayer[0]);
+    sleepForMs(play_quarter_note_time);
+    //4.5 hihat
+    AudioMixer_queueSound(&drumKitPlayer[0]);
+    sleepForMs(play_quarter_note_time);
+    //4.75 hihat
+    AudioMixer_queueSound(&drumKitPlayer[0]);
+    sleepForMs(play_quarter_note_time);
     //needs at least three different drums
 
+    //5: base+hihat 
+    AudioMixer_queueSound(&drumKitPlayer[0]);
+    AudioMixer_queueSound(&drumKitPlayer[1]);
+    sleepForMs(play_quarter_note_time);
+    //5.25 hihat 
+    AudioMixer_queueSound(&drumKitPlayer[0]);
+    sleepForMs(play_quarter_note_time);
+    //5.5 hihat
+    AudioMixer_queueSound(&drumKitPlayer[0]);
+    sleepForMs(play_quarter_note_time);
+    //5.75 hihat
+    AudioMixer_queueSound(&drumKitPlayer[0]);
+    sleepForMs(play_quarter_note_time);
+    //6 hihat + snare
+    AudioMixer_queueSound(&drumKitPlayer[0]);
+    AudioMixer_queueSound(&drumKitPlayer[2]);
+    sleepForMs(play_quarter_note_time);
+    //6.25 hihat
+    AudioMixer_queueSound(&drumKitPlayer[0]);
+    sleepForMs(play_quarter_note_time);
+    //6.5 hihat
+    AudioMixer_queueSound(&drumKitPlayer[0]);
+    sleepForMs(play_quarter_note_time);
+    //6.75 hihat
+    AudioMixer_queueSound(&drumKitPlayer[0]);
+    sleepForMs(play_quarter_note_time);
+    //7 hihat
+    AudioMixer_queueSound(&drumKitPlayer[0]);
+    sleepForMs(play_quarter_note_time);
+    //7.25 hihat
+    AudioMixer_queueSound(&drumKitPlayer[0]);
+    sleepForMs(play_quarter_note_time);
+    //7.5 hihat+base
+    AudioMixer_queueSound(&drumKitPlayer[0]);
+    AudioMixer_queueSound(&drumKitPlayer[1]);
+    sleepForMs(play_quarter_note_time);
+    //7.75 hihat
+    AudioMixer_queueSound(&drumKitPlayer[0]);
+    sleepForMs(play_quarter_note_time);
+    //8 hihat + snare
+    AudioMixer_queueSound(&drumKitPlayer[0]);
+    AudioMixer_queueSound(&drumKitPlayer[2]);
+    sleepForMs(play_quarter_note_time);
+    //8.25 hihat +base
+    AudioMixer_queueSound(&drumKitPlayer[0]);
+    sleepForMs(play_quarter_note_time);
+    //8.5 hihat
+    AudioMixer_queueSound(&drumKitPlayer[0]);
+    AudioMixer_queueSound(&drumKitPlayer[1]);
+    sleepForMs(play_quarter_note_time);
+    //8.75 hihat
+    AudioMixer_queueSound(&drumKitPlayer[0]);
+    sleepForMs(play_quarter_note_time);
 
 }
 
