@@ -107,7 +107,7 @@ static void* udpCommandThread(void *vargp)
 			strcat(sendBuffer, "tempo ##    -- Update the current tempo BPM (## = {00-99}).\n");
 			strcat(sendBuffer, "sound #     -- Play any one of the sounds used in the drum beat. (0-2)\n");
 			strcat(sendBuffer, "stop        -- Cause the server program to end.\n");
-            strcat(sendBuffer, "<enter>     -- Repeat last command.\n");
+      strcat(sendBuffer, "<enter>     -- Repeat last command.\n");
 
 			sendto(socketDescriptor,sendBuffer, strnlen(sendBuffer,MAX_LEN),0,(struct sockaddr *) &sock, sock_sz);
         }
