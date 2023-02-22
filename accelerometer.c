@@ -73,7 +73,9 @@ static void* accelThread(void *vargp)
     printf("Starting accelerometer listener thread!\n");
     while (isRunning)
     {
+        printf("DEBUG: reading the msb values...\n");
         unsigned char *msbValues = readMsbValues(i2cFileDesc, FIRST_BYTE_READ_ADDR);
+        printf("DEBUG: read the msb values...\n");
         unsigned char xMsbVal = msbValues[0];
         unsigned char yMsbVal = msbValues[1];
         unsigned char zMsbVal = msbValues[2];
@@ -122,7 +124,7 @@ static int initI2cBus(char *bus, int address)
 // provided by I2C guide
 static unsigned char* readMsbValues(int i2cFileDesc, unsigned short startRegAddr)
 {
-    startRegAddr += ((unsigned char)0x80); // enable auto increment
+    startRegAddr += ((unsigned char)0x80); // enable device auto increment
 
     // To read a register, must first write the address
     int res = write(i2cFileDesc, &startRegAddr, sizeof(startRegAddr));
@@ -140,9 +142,22 @@ static unsigned char* readMsbValues(int i2cFileDesc, unsigned short startRegAddr
         perror("I2C: Unable to read from i2c register");
         exit(1);
     }
+    // printf("DEBUG: read the register at %x\n", startRegAddr);
     
     unsigned char *msbBuff = malloc(sizeof(unsigned char)*3);
     // TODO: extract msb for X, Y, Z and return the buffer
+
+    // zeroth byte is the garbage byte, first byte is the X MSB
+    // second byte is the X LSB, third byte is the Y MSB
+    // fourth byte is the Y LSB, fifth byte is the Z MSB
+
+    // unsigned char xMsb = buff[1];
+    // unsigned char yMsb = buff[3];
+    // unsigned char zMsb = buff[5];
+
+    msbBuff[0] = buff[1];
+    msbBuff[1] = buff[3];
+    msbBuff[2] = buff[5];
 
     return msbBuff;
 }
