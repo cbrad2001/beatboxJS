@@ -124,8 +124,6 @@ static int initI2cBus(char *bus, int address)
 // provided by I2C guide
 static unsigned char* readMsbValues(int i2cFileDesc, unsigned short startRegAddr)
 {
-    startRegAddr += ((unsigned char)0x80); // enable device auto increment
-
     // To read a register, must first write the address
     int res = write(i2cFileDesc, &startRegAddr, sizeof(startRegAddr));
     if (res != sizeof(startRegAddr))
