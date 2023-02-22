@@ -6,18 +6,23 @@
 #include <fcntl.h>
 #include <pthread.h>
 #include <stdbool.h>
+#include <unistd.h>
 #include <sys/ioctl.h>
 #include <linux/i2c.h>
 #include <linux/i2c-dev.h>
 
 #define I2CDRV_LINUX_BUS "/dev/i2c-1" // this is the i2c bus for the accelerometer
-#define ACCEL_12C_ADDR "0x1C" // this is the address of the accelerometer on the i2c bus
-#define ACCEL_CTRL_REG "0x2A" // this is the register to set to enable the accelerometer
+#define ACCEL_12C_ADDR ((unsigned char)0x1C)// this is the address of the accelerometer on the i2c bus
+#define ACCEL_CTRL_REG ((unsigned char)0x2A) // this is the register to set to enable the accelerometer
+#define DEBOUNCE_MS 600 // calculated from 200 BPM
+#define FIRST_BYTE_READ_ADDR ((unsigned char)0x00)
 
-// definitions for MSB register addresses for X, Y, and Z axes
 #define X_MSB_ADDR ((unsigned char)0x01)
 #define Y_MSB_ADDR ((unsigned char)0x03)
 #define Z_MSB_ADDR ((unsigned char)0x05)
+#define X_LSB_ADDR ((unsigned char)0x02)
+#define Y_LSB_ADDR ((unsigned char)0x04)
+#define Z_LSB_ADDR ((unsigned char)0x06)
 
 // definitions for MSB threshold values
 // these are values gathered after a short test, so adjust accordingly
@@ -31,8 +36,8 @@
 static void* accelThread(void *vargp);
 
 static int initI2cBus(char *bus, int address);
-static unsigned char readI2cReg(int i2cFileDesc, unsigned char regAddr);
-static void runCommand(char *command);
+static unsigned char* readMsbValues(int i2cFileDesc, unsigned short startRegAddr);
+static void writeI2cReg(int i2cFileDesc, unsigned char regAddr, unsigned char value);
 
 static pthread_t accelThreadID;
 static bool isRunning;
@@ -45,6 +50,10 @@ void Accel_start(void)
     sleepForMs(350);
 
     int i2cFileDesc = initI2cBus(I2CDRV_LINUX_BUS, ACCEL_12C_ADDR);
+    
+    // runCommand("i2cset -y 1 0x1C 0x2A 1");
+    writeI2cReg(i2cFileDesc, ACCEL_CTRL_REG, 1);
+
     isRunning = true;
     pthread_create(&accelThreadID, NULL, accelThread, &i2cFileDesc);
 }
@@ -61,29 +70,40 @@ void Accel_stop(void)
 static void* accelThread(void *vargp)
 {
     int i2cFileDesc = *(int*)vargp;
+    printf("Starting accelerometer listener thread!\n");
     while (isRunning)
     {
-        unsigned char xMsbVal = readI2cReg(i2cFileDesc, X_MSB_ADDR);
-        unsigned char yMsbVal = readI2cReg(i2cFileDesc, Y_MSB_ADDR);
-        unsigned char zMsbVal = readI2cReg(i2cFileDesc, Z_MSB_ADDR);
-
-        // TODO: add debounce
+        unsigned char *msbValues = readMsbValues(i2cFileDesc, FIRST_BYTE_READ_ADDR);
+        unsigned char xMsbVal = msbValues[0];
+        unsigned char yMsbVal = msbValues[1];
+        unsigned char zMsbVal = msbValues[2];
 
         if (xMsbVal == X_POS_THRESHOLD || xMsbVal == X_NEG_THRESHOLD)
         {
             // queue the audio file to play here
+            printf("DEBUG: Shake in X axis detected!\n");
+            sleepForMs(DEBOUNCE_MS);
         }
 
         if (yMsbVal == Y_POS_THRESHOLD || yMsbVal == Y_NEG_THRESHOLD)
         {
-
+            printf("DEBUG: Shake in Y axis detected!\n");
+            sleepForMs(DEBOUNCE_MS);
         }
 
         if (zMsbVal == Z_POS_THRESHOLD || zMsbVal == Z_NEG_THRESHOLD)
         {
-            
+            printf("DEBUG: Shake in Z axis detected!\n");
+            sleepForMs(DEBOUNCE_MS);
         }
+
+        printf("DEBUG: MSB values for X, Y, and Z: %x, %x, %x\n", xMsbVal, yMsbVal, zMsbVal);
+        free(msbValues);
+        sleep(1);
     }
+
+    close(i2cFileDesc);
+    return 0;
 }
 
 // provided by I2C guide
@@ -100,47 +120,43 @@ static int initI2cBus(char *bus, int address)
 }
 
 // provided by I2C guide
-static unsigned char readI2cReg(int i2cFileDesc, unsigned char regAddr)
+static unsigned char* readMsbValues(int i2cFileDesc, unsigned short startRegAddr)
 {
+    startRegAddr += ((unsigned char)0x80); // enable auto increment
+
     // To read a register, must first write the address
-    int res = write(i2cFileDesc, &regAddr, sizeof(regAddr));
-    if (res != sizeof(regAddr))
+    int res = write(i2cFileDesc, &startRegAddr, sizeof(startRegAddr));
+    if (res != sizeof(startRegAddr))
     {
         perror("I2C: Unable to write to i2c register for reading.");
         exit(1);
     }
 
     // Now read the value and return it
-    char value = 0;
-    res = read(i2cFileDesc, &value, sizeof(value));
-    if (res != sizeof(value))
+    unsigned char buff[7];
+    res = read(i2cFileDesc, &buff, sizeof(buff));
+    if (res != sizeof(buff))
     {
         perror("I2C: Unable to read from i2c register");
         exit(1);
     }
-    return value;
+    
+    unsigned char *msbBuff = malloc(sizeof(unsigned char)*3);
+    // TODO: extract msb for X, Y, Z and return the buffer
+
+    return msbBuff;
 }
 
 // provided by I2C guide
-static void runCommand(char *command)
+static void writeI2cReg(int i2cFileDesc, unsigned char regAddr, unsigned char value)
 {
-    // Execute the shell command (output into pipe)    
-	FILE *pipe = popen(command, "r");    
-	// Ignore output of the command; but consume it     
-	// so we don't get an error when closing the pipe.    
-	char buffer[1024];    
-	while (!feof(pipe) && !ferror(pipe)) 
-	{        
-		if (fgets(buffer, sizeof(buffer), pipe) == NULL)            
-			break;        
-		// printf("--> %s", buffer);  // Uncomment for debugging    
-	}    
-	// Get the exit code from the pipe; non-zero is an error:    
-	int exitCode = WEXITSTATUS(pclose(pipe));    
-	if (exitCode != 0) 
-	{        
-		perror("Unable to execute command:");        
-		printf("  command:   %s\n", command);        
-		printf("  exit code: %d\n", exitCode);    
-	} 
+    unsigned char buff[2];
+	buff[0] = regAddr;
+	buff[1] = value;
+	int res = write(i2cFileDesc, buff, 2);
+	if (res != 2) 
+	{
+		perror("Unable to write i2c register");
+		exit(-1);
+	}
 }
