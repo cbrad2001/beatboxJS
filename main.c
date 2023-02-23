@@ -10,6 +10,7 @@
 #include "include/drumBeats.h"
 #include "include/audioMixer.h"
 #include "include/periodTimer.h"
+#include "include/accelerometer.h"
 
 // #define SAMPLE_RATE   44100
 // #define NUM_CHANNELS  1
@@ -39,6 +40,7 @@ int main()
 	Period_init();
 	AudioMixer_init();
 	Joystick_startListening();
+	Accel_start();
 	udp_startSampling();
 	Drum_startPlaying();
 	Terminal_startPrinting();
@@ -80,6 +82,7 @@ int main()
 	Joystick_stopListening();
 	AudioMixer_cleanup();
 	Period_cleanup();
+	Accel_stop();
 
 	printf("Done!\n");
 	return 0;
