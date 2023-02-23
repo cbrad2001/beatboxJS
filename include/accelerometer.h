@@ -11,4 +11,7 @@
 void Accel_start(void);
 void Accel_stop(void);
 
+//for global force quit
+void Accel_quit(void);
+
 #endif

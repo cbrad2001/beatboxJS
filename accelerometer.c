@@ -1,5 +1,6 @@
 #include "include/accelerometer.h"
 #include "include/helpers.h"
+#include "include/drumBeats.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,6 +8,7 @@
 #include <pthread.h>
 #include <stdbool.h>
 #include <unistd.h>
+#include <stdint.h>
 #include <sys/ioctl.h>
 #include <linux/i2c.h>
 #include <linux/i2c-dev.h>
@@ -61,6 +63,15 @@ void Accel_stop(void)
     pthread_join(accelThreadID, NULL);
 }
 
+void Accel_quit(void)
+{
+    isRunning = false;
+}
+
+static bool Accel_1or0(int16_t val){
+    return (val == 1 || val == 0);
+}
+
 
 static void* accelThread(void *vargp)
 {
@@ -70,38 +81,56 @@ static void* accelThread(void *vargp)
     // runCommand("i2cset -y 1 0x1C 0x2A 1");
     writeI2cReg(i2cFileDesc, ACCEL_CTRL_REG, 1);
 
+
+
+    isRunning = true;
     printf("Starting accelerometer listener thread!\n");
     while (isRunning)
     {
+        unsigned char buff[7];
+
+        read(i2cFileDesc,buff,sizeof(buff));
+
         // printf("DEBUG: reading the msb values...\n");
         unsigned char *msbValues = readMsbValues(i2cFileDesc, FIRST_BYTE_READ_ADDR);
         // printf("DEBUG: read the msb values...\n");
-        unsigned char xMsbVal = msbValues[0];
-        unsigned char yMsbVal = msbValues[1];
-        unsigned char zMsbVal = msbValues[2];
+        // unsigned char xMsbVal = msbValues[0];
+        // unsigned char yMsbVal = msbValues[1];
+        // unsigned char zMsbVal = msbValues[2];
 
-        if (xMsbVal == X_POS_THRESHOLD || xMsbVal == X_NEG_THRESHOLD)
+        int16_t x = ((buff[X_MSB_ADDR]<<8) | (buff[X_LSB_ADDR]))/10000;
+        int16_t y = ((buff[Y_MSB_ADDR]<<8) | (buff[Y_LSB_ADDR]))/10000;
+        int16_t z = ((buff[Z_MSB_ADDR]<<8) | (buff[Z_LSB_ADDR]))/10000;
+        
+        printf("x val: %x\n",x);
+        printf("y val: %x\n",y);
+        printf("z val: %x\n",z);
+
+        if (Accel_1or0(x))
         {
             // queue the audio file to play here
             printf("DEBUG: Shake in X axis detected!\n");
+            Drum_playSound(0);
             sleepForMs(DEBOUNCE_MS);
         }
 
-        if (yMsbVal == Y_POS_THRESHOLD || yMsbVal == Y_NEG_THRESHOLD)
+        if (Accel_1or0(y))
         {
             printf("DEBUG: Shake in Y axis detected!\n");
+            Drum_playSound(1);
             sleepForMs(DEBOUNCE_MS);
         }
 
-        if (zMsbVal == Z_POS_THRESHOLD || zMsbVal == Z_NEG_THRESHOLD)
+        if (Accel_1or0(z))
         {
             printf("DEBUG: Shake in Z axis detected!\n");
+            Drum_playSound(2);
             sleepForMs(DEBOUNCE_MS);
         }
 
         // printf("DEBUG: MSB values for X, Y, and Z: %x, %x, %x\n", xMsbVal, yMsbVal, zMsbVal);
         free(msbValues);
-        sleep(1);
+        sleepForMs(1000);
     }
 
     close(i2cFileDesc);

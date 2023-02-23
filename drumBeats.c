@@ -72,6 +72,19 @@ static long drumBeat_timeForHalfBeat()
     return bps * MS_PER_SEC;
 }
 
+// DRUM PLAYSOUND
+
+void Drum_playSound(int drumVal)
+{
+    if (drumVal == 0)
+        AudioMixer_queueSound(&drumKitPlayer[0]);
+    else if (drumVal == 1)
+        AudioMixer_queueSound(&drumKitPlayer[1]);
+    else    
+        AudioMixer_queueSound(&drumKitPlayer[2]);
+}
+
+
 /// DRUM MODES:
 
 void Drum_off(){
