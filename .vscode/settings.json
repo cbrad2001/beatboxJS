@@ -3,7 +3,9 @@
         "pthread.h": "c",
         "drumbeats.h": "c",
         "type_traits": "c",
-        "alloca.h": "c"
+        "alloca.h": "c",
+        "accelerometer.h": "c",
+        "helpers.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

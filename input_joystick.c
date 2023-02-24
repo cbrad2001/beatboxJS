@@ -7,6 +7,7 @@
 
 #include "include/helpers.h"
 #include "include/audioMixer.h"
+#include "include/drumBeats.h"
 
 #define JOYSTICK_DEBOUNCE_MS 100
 
@@ -15,7 +16,7 @@ typedef enum {
     down,       //46
     left,       //65
     right,      //47
-    mid,        //27
+    mid,        //27        - pin P8#17
     none
 } joystick_direction;
 
@@ -67,13 +68,13 @@ static void init_joystick(void){
     runCommand("config-pin p8.15 gpio"); //right
     runCommand("config-pin p8.16 gpio"); //down
     runCommand("config-pin p8.18 gpio"); //left 
-    //mid
+    runCommand("config-pin p8.17 gpio"); //middle 
 
     setStickToInput(down_dir);
     setStickToInput(left_dir);
     setStickToInput(right_dir);
     setStickToInput(up_dir);
-    // setStickToInput(mid_dir);
+    setStickToInput(mid_dir);
 
 }
 
@@ -120,7 +121,6 @@ static void* joystickThread(void *vargp)
     printf("Starting joystick listener thread!\n");
     joystick_isRunning = true;
 
-
     while(joystick_isRunning)
     {
         joystick_direction current = determine_press();
@@ -163,7 +163,10 @@ static void* joystickThread(void *vargp)
                 break;
 
             case mid:
-                //cycle through the beats/modes (not yet implemented)
+                //cycle through the beats/modes 
+                Drum_nextMode();
+                printf("Changing mode to: %d\n", Drum_getMode());
+                sleepForMs(JOYSTICK_DEBOUNCE_MS);
                 break;
 
             case none:
@@ -178,8 +181,5 @@ static void* joystickThread(void *vargp)
     }
     printf("Ending joystick thread execution\n");
     return 0;
-
-
-
 }
 

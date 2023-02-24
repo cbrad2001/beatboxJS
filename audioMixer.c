@@ -9,6 +9,7 @@
 #include <alloca.h> // needed for mixer
 
 #include "include/drumBeats.h"
+#include "include/periodTimer.h"
 
 #define BASE_DRUM   "/mnt/remote/myApps/beatbox-wav-files/100051__menegass__gui-drum-bd-hard.wav"
 #define HI_HAT_DRUM "/mnt/remote/myApps/beatbox-wav-files/100053__menegass__gui-drum-cc.wav"
@@ -398,6 +399,7 @@ void* playbackThread(void* arg)
 {
 
 	while (!stopping) {
+		Period_markEvent(PERIOD_EVENT_PLAYBACK_BUFFER);     //THIS MAY NEED TO RELOCATE
 		// Generate next block of audio
 		fillPlaybackBuffer(playbackBuffer, playbackBufferSize);
 
