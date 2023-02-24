@@ -1,5 +1,7 @@
 #include "include/accelerometer.h"
 #include "include/helpers.h"
+#include "include/drumBeats.h"
+#include "include/audioMixer.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -64,6 +66,8 @@ void Accel_stop(void)
 
 static void* accelThread(void *vargp)
 {
+    wavedata_t *drumKit = AudioMixer_getDrumkit();
+
     // int i2cFileDesc = *(int*)vargp;
     int i2cFileDesc = initI2cBus(I2CDRV_LINUX_BUS, ACCEL_12C_ADDR);
     
@@ -82,26 +86,31 @@ static void* accelThread(void *vargp)
 
         if (xMsbVal == X_POS_THRESHOLD || xMsbVal == X_NEG_THRESHOLD)
         {
-            // queue the audio file to play here
-            printf("DEBUG: Shake in X axis detected!\n");
+            // plays hi-hat
+            // printf("DEBUG: Shake in X axis detected!\n");
+            AudioMixer_queueSound(&drumKit[0]);
             sleepForMs(DEBOUNCE_MS);
         }
 
         if (yMsbVal == Y_POS_THRESHOLD || yMsbVal == Y_NEG_THRESHOLD)
         {
-            printf("DEBUG: Shake in Y axis detected!\n");
+            // plays base
+            // printf("DEBUG: Shake in Y axis detected!\n");
+            AudioMixer_queueSound(&drumKit[1]);
             sleepForMs(DEBOUNCE_MS);
         }
 
         if (zMsbVal == Z_POS_THRESHOLD || zMsbVal == Z_NEG_THRESHOLD)
         {
-            printf("DEBUG: Shake in Z axis detected!\n");
+            // plays snare
+            // printf("DEBUG: Shake in Z axis detected!\n");
+            AudioMixer_queueSound(&drumKit[2]);
             sleepForMs(DEBOUNCE_MS);
         }
 
         // printf("DEBUG: MSB values for X, Y, and Z: %x, %x, %x\n", xMsbVal, yMsbVal, zMsbVal);
         free(msbValues);
-        sleep(1);
+        // sleep(1);
     }
 
     close(i2cFileDesc);
