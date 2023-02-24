@@ -196,7 +196,7 @@ static void* udpCommandThread(void *vargp)
             Joystick_quit();
             Drum_quit();
             Terminal_quit();
-            Accel_quit();
+            Accel_stop();
             // STOP ALL RELEVANT THREADS HERE
             isConnected = false;
         }
