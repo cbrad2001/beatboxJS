@@ -82,7 +82,7 @@ int main()
 	Joystick_stopListening();
 	AudioMixer_cleanup();
 	Period_cleanup();
-	Accel_stop();
+	// Accel_stop();
 
 	printf("Done!\n");
 	return 0;

@@ -10,6 +10,7 @@
 #include "include/drumBeats.h"
 
 #define JOYSTICK_DEBOUNCE_MS 100
+#define MIDDLE_DEBOUNCE_MS 500
 
 typedef enum {    
     up,         //26
@@ -166,7 +167,7 @@ static void* joystickThread(void *vargp)
                 //cycle through the beats/modes 
                 Drum_nextMode();
                 printf("Changing mode to: %d\n", Drum_getMode());
-                sleepForMs(JOYSTICK_DEBOUNCE_MS);
+                sleepForMs(MIDDLE_DEBOUNCE_MS);
                 break;
 
             case none:
