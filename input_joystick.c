@@ -9,7 +9,7 @@
 #include "include/audioMixer.h"
 #include "include/drumBeats.h"
 
-#define JOYSTICK_DEBOUNCE_MS 100
+#define JOYSTICK_DEBOUNCE_MS 175
 #define MIDDLE_DEBOUNCE_MS 500
 
 typedef enum {    

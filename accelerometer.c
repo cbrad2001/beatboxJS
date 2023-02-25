@@ -16,24 +16,17 @@
 #define I2CDRV_LINUX_BUS "/dev/i2c-1" // this is the i2c bus for the accelerometer
 #define ACCEL_12C_ADDR ((unsigned char)0x1C)// this is the address of the accelerometer on the i2c bus
 #define ACCEL_CTRL_REG ((unsigned char)0x2A) // this is the register to set to enable the accelerometer
-#define DEBOUNCE_MS 600 // calculated from 200 BPM
+#define DEBOUNCE_MS 200
 #define FIRST_BYTE_READ_ADDR ((unsigned char)0x00)
-
-#define X_MSB_ADDR ((unsigned char)0x01)
-#define Y_MSB_ADDR ((unsigned char)0x03)
-#define Z_MSB_ADDR ((unsigned char)0x05)
-#define X_LSB_ADDR ((unsigned char)0x02)
-#define Y_LSB_ADDR ((unsigned char)0x04)
-#define Z_LSB_ADDR ((unsigned char)0x06)
 
 // definitions for MSB threshold values
 // these are values gathered after a short test, so adjust accordingly
-#define X_POS_THRESHOLD ((unsigned char)0x40)
-#define X_NEG_THRESHOLD ((unsigned char)0xba)
-#define Y_POS_THRESHOLD ((unsigned char)0xa0)
-#define Y_NEG_THRESHOLD ((unsigned char)0x40)
-#define Z_POS_THRESHOLD ((unsigned char)0x75) // under 1G of gravity MSB reads "40"
-#define Z_NEG_THRESHOLD ((unsigned char)0x15)
+#define X_POS_THRESHOLD ((unsigned char)0x85)
+#define X_NEG_THRESHOLD ((unsigned char)0x45)
+#define Y_POS_THRESHOLD ((unsigned char)0x60)
+#define Y_NEG_THRESHOLD ((unsigned char)0x90)
+#define Z_POS_THRESHOLD ((unsigned char)0x80) // under 1G of gravity MSB reads "40"
+#define Z_NEG_THRESHOLD ((unsigned char)0x10)
 
 static void* accelThread(void *vargp);
 
@@ -87,7 +80,13 @@ static void* accelThread(void *vargp)
         if (xMsbVal == X_POS_THRESHOLD || xMsbVal == X_NEG_THRESHOLD)
         {
             // plays hi-hat
-            // printf("DEBUG: Shake in X axis detected!\n");
+            // if (xMsbVal == X_POS_THRESHOLD)
+            // {
+            //     printf("DEBUG: Shake in positive X axis detected!\n");
+            // }
+            // else{
+            //     printf("DEBUG: Shake in negative X axis detected!\n");
+            // }
             AudioMixer_queueSound(&drumKit[0]);
             sleepForMs(DEBOUNCE_MS);
         }
@@ -95,7 +94,13 @@ static void* accelThread(void *vargp)
         if (yMsbVal == Y_POS_THRESHOLD || yMsbVal == Y_NEG_THRESHOLD)
         {
             // plays base
-            // printf("DEBUG: Shake in Y axis detected!\n");
+            // if (yMsbVal == Y_POS_THRESHOLD)
+            // {
+            //     printf("DEBUG: Shake in positive Y axis detected!\n");
+            // }
+            // else{
+            //     printf("DEBUG: Shake in negative Y axis detected!\n");
+            // }
             AudioMixer_queueSound(&drumKit[1]);
             sleepForMs(DEBOUNCE_MS);
         }
@@ -104,6 +109,13 @@ static void* accelThread(void *vargp)
         {
             // plays snare
             // printf("DEBUG: Shake in Z axis detected!\n");
+            // if (zMsbVal == Z_POS_THRESHOLD)
+            // {
+            //     printf("DEBUG: Shake in positive Z axis detected!\n");
+            // }
+            // else{
+            //     printf("DEBUG: Shake in negative Z axis detected!\n");
+            // }
             AudioMixer_queueSound(&drumKit[2]);
             sleepForMs(DEBOUNCE_MS);
         }
