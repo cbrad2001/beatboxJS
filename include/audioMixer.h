@@ -3,7 +3,7 @@
 #ifndef AUDIO_MIXER_H
 #define AUDIO_MIXER_H
 
-typedef struct {
+typedef struct wavedata_t {
 	int numSamples;
 	short *pData;
 } wavedata_t;

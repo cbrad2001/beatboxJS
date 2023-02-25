@@ -11,12 +11,6 @@
 #include "include/helpers.h"
 #include "include/periodTimer.h"
 
-typedef enum{
-    off,
-    rock,
-    custom
-} drum_mode;
-
 drum_mode current;
 
 static pthread_t drumThreadID;
@@ -104,13 +98,19 @@ void Drum_rock()
     AudioMixer_queueSound(&drumKitPlayer[0]);
     AudioMixer_queueSound(&drumKitPlayer[1]);
     sleepForMs(play_quarter_note_time);
+    if (current != rock) { return; } // stop the beat if mode has changed
+
     //1.5 hihat
     AudioMixer_queueSound(&drumKitPlayer[0]);
     sleepForMs(play_quarter_note_time);
+    if (current != rock) { return; }
+
     //2 hihat+snare
     AudioMixer_queueSound(&drumKitPlayer[0]);
     AudioMixer_queueSound(&drumKitPlayer[2]);
     sleepForMs(play_quarter_note_time);
+    if (current != rock) { return; }
+
     // sleepForMs(play_quarter_note_time)
     //2.5 hihat
     AudioMixer_queueSound(&drumKitPlayer[0]);
@@ -126,110 +126,169 @@ void Drum_custom()
     //1: base
     AudioMixer_queueSound(&drumKitPlayer[1]);
     sleepForMs(play_quarter_note_time);
+    if (current != custom) { return; }
     //1.25 
     //no sound
     sleepForMs(play_quarter_note_time);
+    if (current != custom) { return; }
+
     //1.5 hihat
     AudioMixer_queueSound(&drumKitPlayer[0]);
     sleepForMs(play_quarter_note_time);
+    if (current != custom) { return; }
+
     //1.75 hihat
     AudioMixer_queueSound(&drumKitPlayer[0]);
     sleepForMs(play_quarter_note_time);
+    if (current != custom) { return; }
+
     //2 hihat + snare
     AudioMixer_queueSound(&drumKitPlayer[0]);
     AudioMixer_queueSound(&drumKitPlayer[2]);
     sleepForMs(play_quarter_note_time);
+    if (current != custom) { return; }
+
     //2.25 hihat
     AudioMixer_queueSound(&drumKitPlayer[0]);
     sleepForMs(play_quarter_note_time);
+    if (current != custom) { return; }
+
     //2.5 hihat
     AudioMixer_queueSound(&drumKitPlayer[0]);
     sleepForMs(play_quarter_note_time);
+    if (current != custom) { return; }
+
     //2.75 hihat
     AudioMixer_queueSound(&drumKitPlayer[0]);
     sleepForMs(play_quarter_note_time);
+    if (current != custom) { return; }
+
     //3 hihat
     AudioMixer_queueSound(&drumKitPlayer[0]);
     sleepForMs(play_quarter_note_time);
+    if (current != custom) { return; }
+
     //3.25 hihat
     AudioMixer_queueSound(&drumKitPlayer[0]);
     sleepForMs(play_quarter_note_time);
+    if (current != custom) { return; }
+
     //3.5 hihat+base
     AudioMixer_queueSound(&drumKitPlayer[0]);
     AudioMixer_queueSound(&drumKitPlayer[1]);
     sleepForMs(play_quarter_note_time);
+    if (current != custom) { return; }
+
     //3.75 hihat
     AudioMixer_queueSound(&drumKitPlayer[0]);
     sleepForMs(play_quarter_note_time);
+    if (current != custom) { return; }
+
     //4 hihat + snare
     AudioMixer_queueSound(&drumKitPlayer[0]);
     AudioMixer_queueSound(&drumKitPlayer[2]);
     sleepForMs(play_quarter_note_time);
+    if (current != custom) { return; }
+
     //4.25 hihat
     AudioMixer_queueSound(&drumKitPlayer[0]);
     sleepForMs(play_quarter_note_time);
+    if (current != custom) { return; }
+
     //4.5 hihat
     AudioMixer_queueSound(&drumKitPlayer[0]);
     sleepForMs(play_quarter_note_time);
+    if (current != custom) { return; }
+
     //4.75 hihat
     AudioMixer_queueSound(&drumKitPlayer[0]);
     sleepForMs(play_quarter_note_time);
+    if (current != custom) { return; }
     //needs at least three different drums
 
     //5: base+hihat 
     AudioMixer_queueSound(&drumKitPlayer[0]);
     AudioMixer_queueSound(&drumKitPlayer[1]);
     sleepForMs(play_quarter_note_time);
+    if (current != custom) { return; }
+
     //5.25 hihat 
     AudioMixer_queueSound(&drumKitPlayer[0]);
     sleepForMs(play_quarter_note_time);
+    if (current != custom) { return; }
+
     //5.5 hihat
     AudioMixer_queueSound(&drumKitPlayer[0]);
     sleepForMs(play_quarter_note_time);
+    if (current != custom) { return; }
+
     //5.75 hihat
     AudioMixer_queueSound(&drumKitPlayer[0]);
     sleepForMs(play_quarter_note_time);
+    if (current != custom) { return; }
+
     //6 hihat + snare
     AudioMixer_queueSound(&drumKitPlayer[0]);
     AudioMixer_queueSound(&drumKitPlayer[2]);
     sleepForMs(play_quarter_note_time);
+    if (current != custom) { return; }
+
     //6.25 hihat
     AudioMixer_queueSound(&drumKitPlayer[0]);
     sleepForMs(play_quarter_note_time);
+    if (current != custom) { return; }
+
     //6.5 hihat
     AudioMixer_queueSound(&drumKitPlayer[0]);
     sleepForMs(play_quarter_note_time);
+    if (current != custom) { return; }
+
     //6.75 hihat
     AudioMixer_queueSound(&drumKitPlayer[0]);
     sleepForMs(play_quarter_note_time);
+    if (current != custom) { return; }
+
     //7 hihat
     AudioMixer_queueSound(&drumKitPlayer[0]);
     sleepForMs(play_quarter_note_time);
+    if (current != custom) { return; }
+
     //7.25 hihat
     AudioMixer_queueSound(&drumKitPlayer[0]);
     sleepForMs(play_quarter_note_time);
+    if (current != custom) { return; }
+
     //7.5 hihat+base
     AudioMixer_queueSound(&drumKitPlayer[0]);
     AudioMixer_queueSound(&drumKitPlayer[1]);
     sleepForMs(play_quarter_note_time);
+    if (current != custom) { return; }
+
     //7.75 hihat
     AudioMixer_queueSound(&drumKitPlayer[0]);
     sleepForMs(play_quarter_note_time);
+    if (current != custom) { return; }
+
     //8 hihat + snare
     AudioMixer_queueSound(&drumKitPlayer[0]);
     AudioMixer_queueSound(&drumKitPlayer[2]);
     sleepForMs(play_quarter_note_time);
+    if (current != custom) { return; }
+
     //8.25 hihat +base
     AudioMixer_queueSound(&drumKitPlayer[0]);
     sleepForMs(play_quarter_note_time);
+    if (current != custom) { return; }
+
     //8.5 hihat
     AudioMixer_queueSound(&drumKitPlayer[0]);
     AudioMixer_queueSound(&drumKitPlayer[1]);
     sleepForMs(play_quarter_note_time);
+    if (current != custom) { return; }
+
     //8.75 hihat
     AudioMixer_queueSound(&drumKitPlayer[0]);
     sleepForMs(play_quarter_note_time);
-
 }
 
 //plays the drum beat according to the selected mode

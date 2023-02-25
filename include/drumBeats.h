@@ -2,6 +2,12 @@
 #ifndef DRUM_BEAT_H
 #define DRUM_BEAT_H
 
+typedef enum drum_mode {
+    off,
+    rock,
+    custom
+} drum_mode;
+
 // Start/Stop thread that actively listens to the mode of the drumming 
 void Drum_startPlaying();
 void Drum_stopPlaying();
