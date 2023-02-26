@@ -10,6 +10,7 @@
 #include <stdbool.h>
 #include <pthread.h>
 #include <sys/socket.h>
+#include <arpa/inet.h>
 
 #include "include/drumBeats.h"
 #include "include/input_joystick.h"
@@ -28,18 +29,20 @@
  * 
 */
 
-#define PORT 12345      // RUN: netcat -u 192.168.7.2 12345                          
+#define BIND_PORT 12345      // RUN: netcat -u 192.168.7.2 12345    
+#define NODE_JS_PORT 8089                 
 #define MAX_LEN 1024
 
 #define CMD_HELP    "help\n"
-#define CMD_MODE    "mode\n"
-#define CMD_VOLUME  "volume\n"
-#define CMD_TEMPO   "tempo\n"     
+#define CMD_MODE    "mode"
+#define CMD_VOLUME  "volume"
+#define CMD_TEMPO   "tempo"     
 #define CMD_SOUND   "sound"        
 #define CMD_STOP    "stop\n"
 #define ENTER       '\n'
 
 static pthread_t udpThreadID;
+static pthread_t timeThreadID;
 
 static struct sockaddr_in sock;
 static int socketDescriptor;
@@ -47,17 +50,20 @@ static bool isConnected;
 static socklen_t sock_sz;
 
 static void* udpCommandThread(void *vargp);
+static void* timeSendThread(void *vargp);
 
 void udp_startSampling(void)
 {
     isConnected = true;
     pthread_create(&udpThreadID, NULL, &udpCommandThread, NULL);
+    pthread_create(&timeThreadID, NULL, &timeSendThread, NULL);
 }
 
 void udp_stopSampling(void)
 {
     isConnected = false;
     pthread_join(udpThreadID, NULL);
+    pthread_join(timeThreadID, NULL);
 }
 
 static void* udpCommandThread(void *vargp)
@@ -65,7 +71,7 @@ static void* udpCommandThread(void *vargp)
     memset(&sock, 0, sizeof(sock));
     sock.sin_family = AF_INET;
     sock.sin_addr.s_addr = htonl(INADDR_ANY);
-    sock.sin_port = htons(PORT);
+    sock.sin_port = htons(BIND_PORT);
 
     socketDescriptor = socket(PF_INET, SOCK_DGRAM, 0);
     if (socketDescriptor == -1)
@@ -119,15 +125,47 @@ static void* udpCommandThread(void *vargp)
             int n = atoi(startOfN);
             memset(sendBuffer, 0, MAX_LEN);             // 1024 bytes per buffer
 
-            if (n < 0 || n > 3 ){                       // invalid mode
-                char *errMsg = "Choose one of the valid 3 modes. {0 = off, 1 = rock, 2 = custom}";
-                sprintf(sendBuffer, "%s.\n", errMsg);
+            if (n < 0 || n > 3){                       // invalid mode
+                char modeString[10];
+                memset(modeString, '\0', 10);
+                char *status = "f";
+                switch (Drum_getMode()) 
+                {
+                    case off:
+                        strncat(modeString, "off", 10);
+                        break;
+                    case rock:
+                        strncat(modeString, "rock", 10);
+                        break;
+                    case custom:
+                        strncat(modeString, "custom", 10);
+                        break;
+                }
+                // char *errMsg = "mode||Choose one of the valid 3 modes. {0 = off, 1 = rock, 2 = custom}";
+                // sprintf(sendBuffer, "%s.\n", errMsg);
+                sprintf(sendBuffer, "mode|%s|%s|Choose one of the valid 3 modes. {0 = off, 1 = rock, 2 = custom}", status, modeString);
                 sendto(socketDescriptor,sendBuffer, strnlen(sendBuffer,MAX_LEN),0,(struct sockaddr *) &sock, sock_sz);
             }
             else
             {
+                char *status = "t";
                 Drum_setMode(n);
-                sprintf(sendBuffer, "Successfully set mode to %d.\n", Drum_getMode());
+                char modeString[10];
+                memset(modeString, '\0', 10);
+                switch(n)
+                {
+                    case 0:
+                        strncat(modeString, "off", 10);
+                        break;
+                    case 1:
+                        strncat(modeString, "rock", 10);
+                        break;
+                    case 2:
+                        strncat(modeString, "custom", 10);
+                        break;
+                }
+
+                sprintf(sendBuffer, "mode|%s|%s|Successfully set mode to %s.\n", status, modeString, modeString);
                 sendto(socketDescriptor,sendBuffer, strnlen(sendBuffer,MAX_LEN),0,(struct sockaddr *) &sock, sock_sz);
             }
         }
@@ -139,14 +177,18 @@ static void* udpCommandThread(void *vargp)
             memset(sendBuffer, 0, MAX_LEN);             // 1024 bytes per buffer
 
             if (n < 0 || n > 100 ){                      // invalid volume
-                char *errMsg = "Invalid volume. Set to between 0-99";
-                sprintf(sendBuffer, "%s.\n", errMsg);
+                char *status = "f";
+                // char *errMsg = "volume|Invalid volume. Set to between 0-99";
+                // sprintf(sendBuffer, "%s.\n", errMsg);
+                sprintf(sendBuffer, "volume|%s|Invalid volume. Set to between 0-99", status);
                 sendto(socketDescriptor,sendBuffer, strnlen(sendBuffer,MAX_LEN),0,(struct sockaddr *) &sock, sock_sz);
             }
             else
             {
+                char *status = "t";
                 AudioMixer_setVolume(n);
-                sprintf(sendBuffer, "Successfully set volume to %d.\n", AudioMixer_getVolume());
+                int vol = AudioMixer_getVolume();
+                sprintf(sendBuffer, "volume|%s|%d|Successfully set volume to %d.\n", status, vol, vol);
                 sendto(socketDescriptor,sendBuffer, strnlen(sendBuffer,MAX_LEN),0,(struct sockaddr *) &sock, sock_sz);
             }  
         }
@@ -157,14 +199,15 @@ static void* udpCommandThread(void *vargp)
             memset(sendBuffer, 0, MAX_LEN);             // 1024 bytes per buffer
 
             if (n < MIN_BPM || n > MAX_BPM ){         // invalid tempo
-                char *errMsg = "Invalid tempo. Set to between ";
+                char *errMsg = "tempo|f|Invalid tempo. Set to between ";
                 sprintf(sendBuffer, "%s%d-%d.\n", errMsg,MIN_BPM,MAX_BPM);
                 sendto(socketDescriptor,sendBuffer, strnlen(sendBuffer,MAX_LEN),0,(struct sockaddr *) &sock, sock_sz);
             }
             else
             {
                 AudioMixer_setBPM(n);
-                sprintf(sendBuffer, "Successfully set tempo to %dbpm.\n", AudioMixer_getBPM());
+                int tempo = AudioMixer_getBPM();
+                sprintf(sendBuffer, "tempo|t|%d|Successfully set tempo to %d bpm.\n", tempo, tempo);
                 sendto(socketDescriptor,sendBuffer, strnlen(sendBuffer,MAX_LEN),0,(struct sockaddr *) &sock, sock_sz);
             }
             
@@ -176,7 +219,7 @@ static void* udpCommandThread(void *vargp)
             memset(sendBuffer, 0, MAX_LEN);             // 1024 bytes per buffer
 
             if (n < 0 || n > 2 ){                       // invalid sound
-                char *errMsg = "Invalid sound. Set to ";
+                char *errMsg = "sound|Invalid sound. Set to ";
                 sprintf(sendBuffer, "%s%d-%d.\n", errMsg,0,2);
                 sendto(socketDescriptor,sendBuffer, strnlen(sendBuffer,MAX_LEN),0,(struct sockaddr *) &sock, sock_sz);
             }
@@ -184,14 +227,14 @@ static void* udpCommandThread(void *vargp)
             {
                 wavedata_t tempSound = AudioMixer_getDrumkit()[n];
                 AudioMixer_queueSound(&tempSound);
-                sprintf(sendBuffer, "Successfully played sound #%d.\n", n);
+                sprintf(sendBuffer, "sound|Successfully played sound #%d.\n", n);
                 sendto(socketDescriptor,sendBuffer, strnlen(sendBuffer,MAX_LEN),0,(struct sockaddr *) &sock, sock_sz);
             }
         }
 
         else if (strncmp(recvBuffer, CMD_STOP,4) == 0)  // shuts off all threads; quits local udp and remote sampler
         {
-            sprintf(sendBuffer, "Program terminating: (enter to quit)\n");
+            sprintf(sendBuffer, "stop|Beatbox shutting down...\n");
             sendto(socketDescriptor,sendBuffer, strnlen(sendBuffer,MAX_LEN),0,(struct sockaddr *) &sock, sock_sz);
             Joystick_quit();
             Drum_quit();
@@ -202,23 +245,64 @@ static void* udpCommandThread(void *vargp)
         }
         else                                            // default case: unknown
         {
-            sprintf(sendBuffer, "Unknown command.\n");
+            sprintf(sendBuffer, "unknown|Unknown command.\n");
 			sendto(socketDescriptor,sendBuffer, strnlen(sendBuffer,MAX_LEN),0,(struct sockaddr *) &sock, sock_sz);
         }
         memset(recvBuffer, 0, MAX_LEN);
         memset(sendBuffer, 0, MAX_LEN);
-
-
-
-
-
-
-
-
-
-
     }
     close(socketDescriptor);
     printf("UDP thread ending!\n");
+    return 0;
+}
+
+// Background thread to send uptime.
+static void* timeSendThread(void *vargp)
+{
+    printf("Starting uptime send thread...\n");
+
+    unsigned short destPort = htons(NODE_JS_PORT);
+    struct sockaddr_in sendSock;
+    int sendSockFd;
+
+    if ((sendSockFd = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
+    {
+        perror("Socket error for thread to send time.\n");
+        exit(1);
+    }
+
+    sendSock.sin_family = AF_INET;
+    sendSock.sin_port = destPort;
+    sendSock.sin_addr.s_addr = inet_addr("127.0.0.1");
+
+    while (isConnected)
+    {
+        FILE *uptimeFile = fopen("/proc/uptime", "r");
+        if (uptimeFile == NULL)
+        {
+            perror("Cannot open /proc/uptime\n");
+            exit(1);
+        }
+
+        char uptimeBuf[MAX_LEN];
+        fgets(uptimeBuf, MAX_LEN, uptimeFile);
+        fclose(uptimeFile);
+
+        char *uptimeString = strtok(uptimeBuf, ".");
+
+        char sendBuf[MAX_LEN] = "uptime|";
+        strncat(sendBuf, uptimeString, MAX_LEN);
+
+        if (sendto(sendSockFd, sendBuf, strnlen(uptimeString, MAX_LEN), 0,
+                (struct sockaddr *)&sendSock, sizeof(sendSock)) < 0)
+        {   
+            perror("Error sending time string UDP packet\n.");
+        }
+
+        sleep(1);
+    }
+
+    printf("Uptime send thread stopped.\n");
+    close(sendSockFd);
     return 0;
 }

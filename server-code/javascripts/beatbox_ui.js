@@ -4,26 +4,41 @@ console.log("Hi from beatbox_ui.js!")
 // this is the client-side version of socket.io
 const socket = io.connect()
 
+var errorTimer
+
 $(document).ready(() => {
     $('#volumeid').focus();
     $('#status').text('Connecting...')
 
+    // Set up the listeners for message types
     socket.on('noConnect', () => {
         // Display message if there's no connection to Beatbox C app
-        $('#status').text('No reply from Beatbox!')
+        $('#error-header').text('Beatbox Error')
+        $('#error-text').text('No response from Beatbox! Is it running?')
     })
 
-    socket.on('ack', () => {
-        // Display message for successful ping
-        $('#status').text('Beatbox is running!')
+    socket.on('jsAck', () => {
+        // Display message for successful ping to JS server
+        clearTimeout(errorTimer)
     })
 
     socket.on('uptime', (msg) => {
-        $('#status').text('Beatbox has been running for ' + msg)
+        let seconds = Number(msg)
+        let minutes = Math.trunc(seconds / 60)
+        seconds %= 60
+        let hours = Math.trunc(minutes / 60)
+        minutes %= 60
+
+        $('#status').text('Beatbox has been running for ' + hours + ':' + minutes + ':' + seconds + '(HH:MM:SS)')
     })
 
-    // Ping the JS server, which will then ping the C app
-    socket.emit('uptime')
+    // Ping the NodeJS server
+    socket.emit('init')
+    errorTimer = setTimeout(() => {
+        $('#error-header').text('Web Server Error')
+        $('#error-text').text('No response from the NodeJS server. Is it running?')
+        $('#error-box').show()
+    }, 500)
 })
 
 $('#modeNone').click(() => {
@@ -55,7 +70,7 @@ $('#stopProgram').click(() => {
 $('#volumeSet').click(() => {
     let volume = Number($('#volumeid').val())
     var message = {
-        value: volume
+        volume: volume
     }
     socket.emit('volume', message)
 })

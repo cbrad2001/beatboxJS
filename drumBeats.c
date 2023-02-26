@@ -39,9 +39,9 @@ void Drum_quit()
     drum_isPlaying = false;
 }
 
-int Drum_getMode()
+drum_mode Drum_getMode()
 {
-    return (int)current;
+    return current;
 }
 
 void Drum_setMode(int newMode)

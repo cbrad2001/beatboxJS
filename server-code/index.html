@@ -25,7 +25,7 @@
 				<p>Current drum beat mode is: <strong><span id="modeid"></span></strong></p>
 				<p>
 					<input type="button" id="modeNone"  value="None"/>
-					<input type="button" id="modeRock1" value="Rock #1"/>
+					<input type="button" id="modeRock1" value="Rock"/>
 					<input type="button" id="modeRock2" value="Custom Beat"/>
 				</p>
 				<h3>Volume</h3>
@@ -44,9 +44,16 @@
 				</p>
 			</div>
 		</div>
+		<div id='msg-box'>
+			<h2 id="msg-box-header">Beatbox Messages</h2>
+			<!-- <div><code id='msg-text'>Hi!</code></div> -->
+			<div id="msg-text-div">
+				<code id='msg-text'>Nothing from Beatbox yet...</code>
+			</div>
+		</div>
 		<div id='error-box'>
-			<h2>Server Error</h2>
-			<p>Server error detected. Please resolve error before continuing.</p>
+			<h2 id='error-header'>Server Error</h2>
+			<p>Error detected. Please resolve before continuing.</p>
 			<div><code id='error-text'>No error yet... did you hide this div correctly via Javascript? :)</code></div>
 		</div>
 

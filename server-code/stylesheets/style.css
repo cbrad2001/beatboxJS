@@ -40,3 +40,24 @@ h1, h2 {
 	margin-top: 20px;
 	display: none;
 }
+
+#msg-box {
+	border: thin black solid;
+	background-color: lightgrey;
+	padding-left: 10pt;
+	padding-right: 10pt;
+	padding-bottom: 15pt;
+	margin-top: 20px;
+}
+
+#msg-text-div {
+	margin: auto;
+	width: 100%;
+	height: 250px;
+	background-color: whitesmoke;
+}
+
+#msg-text {
+	padding-left: 10pt;	
+	overflow: auto;
+}

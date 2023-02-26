@@ -15,7 +15,7 @@ void Drum_stopPlaying();
 void Drum_quit();
 
 //retrieves current mode
-int Drum_getMode();
+drum_mode Drum_getMode();
 void Drum_setMode(int newMode);
 void Drum_nextMode();
 
