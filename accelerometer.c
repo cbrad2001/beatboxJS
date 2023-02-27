@@ -2,6 +2,7 @@
 #include "include/helpers.h"
 #include "include/drumBeats.h"
 #include "include/audioMixer.h"
+#include "include/periodTimer.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -70,6 +71,7 @@ static void* accelThread(void *vargp)
     printf("Starting accelerometer listener thread!\n");
     while (isRunning)
     {
+        Period_markEvent(PERIOD_EVENT_ACCELEROMETER);
         // printf("DEBUG: reading the msb values...\n");
         unsigned char *msbValues = readMsbValues(i2cFileDesc, FIRST_BYTE_READ_ADDR);
         // printf("DEBUG: read the msb values...\n");
