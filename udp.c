@@ -132,13 +132,13 @@ static void* udpCommandThread(void *vargp)
                 switch (Drum_getMode()) 
                 {
                     case off:
-                        strncat(modeString, "off", 10);
+                        strncat(modeString, "off", 9);
                         break;
                     case rock:
-                        strncat(modeString, "rock", 10);
+                        strncat(modeString, "rock", 9);
                         break;
                     case custom:
-                        strncat(modeString, "custom", 10);
+                        strncat(modeString, "custom", 9);
                         break;
                 }
                 // char *errMsg = "mode||Choose one of the valid 3 modes. {0 = off, 1 = rock, 2 = custom}";
@@ -155,13 +155,13 @@ static void* udpCommandThread(void *vargp)
                 switch(n)
                 {
                     case 0:
-                        strncat(modeString, "off", 10);
+                        strncat(modeString, "off", 9);
                         break;
                     case 1:
-                        strncat(modeString, "rock", 10);
+                        strncat(modeString, "rock", 9);
                         break;
                     case 2:
-                        strncat(modeString, "custom", 10);
+                        strncat(modeString, "custom", 9);
                         break;
                 }
 

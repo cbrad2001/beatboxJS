@@ -91,8 +91,6 @@ void Drum_off(){
 void Drum_rock()
 {
     long play_quarter_note_time = drumBeat_timeForHalfBeat();
-
-    printf("sleep time: %li\n", play_quarter_note_time);
     
     //1: hihat + base
     AudioMixer_queueSound(&drumKitPlayer[0]);
