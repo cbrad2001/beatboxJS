@@ -11,7 +11,7 @@
 	<h1>BeagleBone Beat-Box</h1>
 	<div>by jwa359 and cba52!</div>
 
-	<p>This page is a partial solution to what's needed. You'll need to add some extra sections for tempo and triggering sounds via buttons.</p>
+	<!-- <p>This page is a partial solution to what's needed. You'll need to add some extra sections for tempo and triggering sounds via buttons.</p> -->
 	
 	<div id='content'>
 		<div id='status-box'>
@@ -23,17 +23,30 @@
 			<div id='modediv'>
 				<h2>Drum Beat Selection</h2>
 				<p>Current drum beat mode is: <strong><span id="modeid"></span></strong></p>
+				<p>Current BeatBox volume is: <strong><span id="volumeid"></span></strong></p>
+				<p>Current BeatBox tempo is: <strong><span id="tempoid"></span></strong></p>
 				<p>
 					<input type="button" id="modeNone"  value="None"/>
 					<input type="button" id="modeRock1" value="Rock"/>
 					<input type="button" id="modeRock2" value="Custom Beat"/>
 				</p>
+				<p>
+					<input type="button" id="playHiHat"  value="Play Hi-Hat"/>
+					<input type="button" id="playBassDrum" value="Play Bass Drum"/>
+					<input type="button" id="playSnareDrum" value="Play Snare Drum"/>
+				</p>
 				<h3>Volume</h3>
 				<p>
 					<input type="button" id="volumeDown" value=" - "/>
-					<input type="text"   id="volumeid" value="50" size="3" readonly/>
+					<input type="text"   id="volumeTextBox" value="50" size="3" readonly/>
 					<input type="button" id="volumeUp" value=" + "/>
 					(0 - 100)
+				</p>
+				<p>
+					<input type="button" id="bpmDown" value=" - "/>
+					<input type="text"   id="bpmTextBox" value="120" size="3" readonly/>
+					<input type="button" id="bpmUp" value=" + "/>
+					(40 - 300)
 				</p>
 			</div>
 			
@@ -41,6 +54,8 @@
 				<p>
 					<input type="button" id="stopProgram" value="Terminate Program"/>
 					<input type="button" id="volumeSet" value="Set Volume">
+					<input type="button" id="bpmSet" value="Set BPM">
+					<input type="button" id="statusButton" value="Get Status">
 				</p>
 			</div>
 		</div>
@@ -48,7 +63,7 @@
 			<h2 id="msg-box-header">Beatbox Messages</h2>
 			<!-- <div><code id='msg-text'>Hi!</code></div> -->
 			<div id="msg-text-div">
-				<code id='msg-text'>Nothing from Beatbox yet...</code>
+				<p id='msg-text'>Nothing from Beatbox yet...</p>
 			</div>
 		</div>
 		<div id='error-box'>

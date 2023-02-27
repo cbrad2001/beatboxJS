@@ -38,7 +38,8 @@
 #define CMD_VOLUME  "volume"
 #define CMD_TEMPO   "tempo"     
 #define CMD_SOUND   "sound"        
-#define CMD_STOP    "stop\n"
+#define CMD_STOP    "stop"
+#define CMD_STATUS  "status"
 #define ENTER       '\n'
 
 static pthread_t udpThreadID;
@@ -132,13 +133,13 @@ static void* udpCommandThread(void *vargp)
                 switch (Drum_getMode()) 
                 {
                     case off:
-                        strncat(modeString, "off", 10);
+                        strncat(modeString, "off", 9);
                         break;
                     case rock:
-                        strncat(modeString, "rock", 10);
+                        strncat(modeString, "rock", 9);
                         break;
                     case custom:
-                        strncat(modeString, "custom", 10);
+                        strncat(modeString, "custom", 9);
                         break;
                 }
                 // char *errMsg = "mode||Choose one of the valid 3 modes. {0 = off, 1 = rock, 2 = custom}";
@@ -155,13 +156,13 @@ static void* udpCommandThread(void *vargp)
                 switch(n)
                 {
                     case 0:
-                        strncat(modeString, "off", 10);
+                        strncat(modeString, "off", 9);
                         break;
                     case 1:
-                        strncat(modeString, "rock", 10);
+                        strncat(modeString, "rock", 9);
                         break;
                     case 2:
-                        strncat(modeString, "custom", 10);
+                        strncat(modeString, "custom", 9);
                         break;
                 }
 
@@ -225,8 +226,9 @@ static void* udpCommandThread(void *vargp)
             }
             else
             {
-                wavedata_t tempSound = AudioMixer_getDrumkit()[n];
-                AudioMixer_queueSound(&tempSound);
+                // wavedata_t tempSound = AudioMixer_getDrumkit()[n];
+                wavedata_t *drumKit = AudioMixer_getDrumkit();
+                AudioMixer_queueSound(&drumKit[n]);
                 sprintf(sendBuffer, "sound|Successfully played sound #%d.\n", n);
                 sendto(socketDescriptor,sendBuffer, strnlen(sendBuffer,MAX_LEN),0,(struct sockaddr *) &sock, sock_sz);
             }
@@ -242,6 +244,30 @@ static void* udpCommandThread(void *vargp)
             Accel_stop();
             // STOP ALL RELEVANT THREADS HERE
             isConnected = false;
+        }
+        else if (strncmp(recvBuffer, CMD_STATUS, 6) == 0) {
+            int mode = (int)Drum_getMode();
+            int vol = AudioMixer_getVolume();
+            int bpm = AudioMixer_getBPM();
+
+            char modeString[10];
+            memset(modeString, '\0', 10);
+            switch (mode) 
+            {
+                case 0:
+                    strncat(modeString, "off", 9);
+                    break;
+                case 1:
+                    strncat(modeString, "rock", 9);
+                    break;
+                case 2:
+                    strncat(modeString, "custom", 9);
+                    break;
+            }
+
+            sprintf(sendBuffer, "status|%s|%d|%d\n", modeString, vol, bpm);
+            // printf("Debug: sending status as %s\n", sendBuffer);
+            sendto(socketDescriptor,sendBuffer, strnlen(sendBuffer,MAX_LEN),0,(struct sockaddr *) &sock, sock_sz);
         }
         else                                            // default case: unknown
         {
@@ -293,7 +319,8 @@ static void* timeSendThread(void *vargp)
         char sendBuf[MAX_LEN] = "uptime|";
         strncat(sendBuf, uptimeString, MAX_LEN);
 
-        if (sendto(sendSockFd, sendBuf, strnlen(uptimeString, MAX_LEN), 0,
+        // printf("DEBUG: time thread sending %s\n", sendBuf);
+        if (sendto(sendSockFd, sendBuf, strnlen(sendBuf, MAX_LEN), 0,
                 (struct sockaddr *)&sendSock, sizeof(sendSock)) < 0)
         {   
             perror("Error sending time string UDP packet\n.");

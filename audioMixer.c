@@ -51,7 +51,7 @@ static pthread_mutex_t audioMutex = PTHREAD_MUTEX_INITIALIZER;
 static int volume = DEFAULT_VOLUME;
 static int bpm = DEFAULT_BPM;
 
-wavedata_t drumKit[3];	//contains all drum sounds
+static wavedata_t drumKit[3];	//contains all drum sounds
 
 
 void AudioMixer_Druminit()
