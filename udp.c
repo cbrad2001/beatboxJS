@@ -19,21 +19,11 @@
 #include "include/drumBeats.h"
 #include "include/accelerometer.h"
 
-/**
- * 
- *  must support:
- *      changing drum beat mode
- *      changing volume
- *      changing tempo
- *      playing a specific sound from within the beat
- * 
-*/
-
 #define BIND_PORT 12345      // RUN: netcat -u 192.168.7.2 12345    
 #define NODE_JS_PORT 8089                 
 #define MAX_LEN 1024
 
-#define CMD_HELP    "help\n"
+#define CMD_HELP    "help\n"    //keywords for each commandtype
 #define CMD_MODE    "mode"
 #define CMD_VOLUME  "volume"
 #define CMD_TEMPO   "tempo"     
@@ -126,7 +116,7 @@ static void* udpCommandThread(void *vargp)
             int n = atoi(startOfN);
             memset(sendBuffer, 0, MAX_LEN);             // 1024 bytes per buffer
 
-            if (n < 0 || n > 3){                       // invalid mode
+            if (n < 0 || n > 3){                        // invalid mode
                 char modeString[10];
                 memset(modeString, '\0', 10);
                 char *status = "f";
@@ -142,8 +132,7 @@ static void* udpCommandThread(void *vargp)
                         strncat(modeString, "custom", 9);
                         break;
                 }
-                // char *errMsg = "mode||Choose one of the valid 3 modes. {0 = off, 1 = rock, 2 = custom}";
-                // sprintf(sendBuffer, "%s.\n", errMsg);
+
                 sprintf(sendBuffer, "mode|%s|%s|Choose one of the valid 3 modes. {0 = off, 1 = rock, 2 = custom}", status, modeString);
                 sendto(socketDescriptor,sendBuffer, strnlen(sendBuffer,MAX_LEN),0,(struct sockaddr *) &sock, sock_sz);
             }
@@ -177,10 +166,8 @@ static void* udpCommandThread(void *vargp)
             int n = atoi(startOfN);
             memset(sendBuffer, 0, MAX_LEN);             // 1024 bytes per buffer
 
-            if (n < 0 || n > 100 ){                      // invalid volume
+            if (n < 0 || n > 100 ){                     // invalid volume
                 char *status = "f";
-                // char *errMsg = "volume|Invalid volume. Set to between 0-99";
-                // sprintf(sendBuffer, "%s.\n", errMsg);
                 sprintf(sendBuffer, "volume|%s|Invalid volume. Set to between 0-99", status);
                 sendto(socketDescriptor,sendBuffer, strnlen(sendBuffer,MAX_LEN),0,(struct sockaddr *) &sock, sock_sz);
             }
@@ -199,7 +186,7 @@ static void* udpCommandThread(void *vargp)
             int n = atoi(startOfN);
             memset(sendBuffer, 0, MAX_LEN);             // 1024 bytes per buffer
 
-            if (n < MIN_BPM || n > MAX_BPM ){         // invalid tempo
+            if (n < MIN_BPM || n > MAX_BPM ){           // invalid tempo
                 char *errMsg = "tempo|f|Invalid tempo. Set to between ";
                 sprintf(sendBuffer, "%s%d-%d.\n", errMsg,MIN_BPM,MAX_BPM);
                 sendto(socketDescriptor,sendBuffer, strnlen(sendBuffer,MAX_LEN),0,(struct sockaddr *) &sock, sock_sz);
@@ -226,7 +213,6 @@ static void* udpCommandThread(void *vargp)
             }
             else
             {
-                // wavedata_t tempSound = AudioMixer_getDrumkit()[n];
                 wavedata_t *drumKit = AudioMixer_getDrumkit();
                 AudioMixer_queueSound(&drumKit[n]);
                 sprintf(sendBuffer, "sound|Successfully played sound #%d.\n", n);
@@ -266,7 +252,6 @@ static void* udpCommandThread(void *vargp)
             }
 
             sprintf(sendBuffer, "status|%s|%d|%d\n", modeString, vol, bpm);
-            // printf("Debug: sending status as %s\n", sendBuffer);
             sendto(socketDescriptor,sendBuffer, strnlen(sendBuffer,MAX_LEN),0,(struct sockaddr *) &sock, sock_sz);
         }
         else                                            // default case: unknown
@@ -319,7 +304,6 @@ static void* timeSendThread(void *vargp)
         char sendBuf[MAX_LEN] = "uptime|";
         strncat(sendBuf, uptimeString, MAX_LEN);
 
-        // printf("DEBUG: time thread sending %s\n", sendBuf);
         if (sendto(sendSockFd, sendBuf, strnlen(sendBuf, MAX_LEN), 0,
                 (struct sockaddr *)&sendSock, sizeof(sendSock)) < 0)
         {   

@@ -1,7 +1,6 @@
 //Module for UDP
-//    
-//
-//
+// Supports running commands over netcat     
+// also enables communication to server by nodejs
 #ifndef _UDP_H_
 #define _UDP_H_
 

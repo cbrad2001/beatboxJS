@@ -1,4 +1,4 @@
-// Global helper functions
+// Global helper functions... so that there is no module calling overlap for generic functions
 // Time support
 #ifndef HELPERS_H
 #define HELPERS_H
@@ -8,7 +8,6 @@
 
 // sleep program execution for a given number of ms
 void sleepForMs(long long delayInMs);
-// long long getTimeInMs(void);
 
 // run a console command
 void runCommand(char* command); 

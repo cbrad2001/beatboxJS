@@ -102,8 +102,6 @@ $(document).ready(() => {
         $('#tempoid').text(msg.bpm + ' BPM')
     })
 
-    
-
     // Ping the NodeJS server
     socket.emit('init')
     setNodejsErrorTimer()
