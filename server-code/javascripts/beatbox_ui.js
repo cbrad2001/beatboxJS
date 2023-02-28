@@ -10,6 +10,7 @@ var errorTimer
 $(document).ready(() => {
     $('#volumeid').focus();
     $('#status').text('Connecting...')
+    $('#statusButton').hide()
 
     // Set up the listeners for message types
     socket.on('noConnect', () => {
@@ -21,6 +22,7 @@ $(document).ready(() => {
 
     socket.on('jsAck', () => {
         // Display message for successful ping to JS server
+        // console.log('Received jsAck')
         clearTimeout(errorTimer)
     })
 
@@ -122,9 +124,8 @@ function clearNodejsErrorTimer() {
 
 // update every second (allow for udp and joystick commands to update)
 setInterval(function () {
-    document.getElementById("statusButton").click();
-    console.log('click');
-}, 1000);
+    $('#statusButton').trigger('click')
+}, 200);
 
 // Status setters
 $('#modeNone').click(() => {

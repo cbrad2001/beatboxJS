@@ -49,10 +49,10 @@ void Accel_start(void)
 
 void Accel_stop(void)
 {
-    runCommand("config-pin P9_17 default");
-    runCommand("config-pin P9_18 default");
     isRunning = false;
     pthread_join(accelThreadID, NULL);
+    runCommand("config-pin P9_17 default");
+    runCommand("config-pin P9_18 default");
 }
 
 static void* accelThread(void *vargp)

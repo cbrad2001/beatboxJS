@@ -165,19 +165,25 @@ exports.listen = (server, udpPort) => {
 
 // Function for handling commands from the client-side js
 function handleSocketCommand(socket) {
+    // console.log('Sending jsAck')
+    // socket.emit('jsAck')
+
     socket.on('init', () => {
         console.log('Client connected!')
         timeListenErrorTimer = setTimeout(() => {
             // console.log('Sent a noConnect!')
             socket.emit('noConnect')
         }, 2000)
-        socket.emit('jsAck')
 
+        // console.log('Sending jsAck')
+        socket.emit('jsAck')
         var toSend = 'status'
         udpSocket.send(toSend, DEST_PORT, 'localhost')
     })
 
     socket.on('mode', (data) => {
+        // console.log('Sending jsAck')
+        socket.emit('jsAck')
         var value = data.mode
         var toSend = 'mode ' + value
         // console.log('DEBUG: sending UDP packet to change mode to ' + value)
@@ -185,28 +191,38 @@ function handleSocketCommand(socket) {
     })
 
     socket.on('stop', (data) => {
+        // console.log('Sending jsAck')
+        socket.emit('jsAck')
         udpSocket.send('stop', DEST_PORT, 'localhost')
     })
 
     socket.on('volume', (data) => {
+        // console.log('Sending jsAck')
+        socket.emit('jsAck')
         var value = data.volume
         var toSend = 'volume ' + value
         udpSocket.send(toSend, DEST_PORT, 'localhost')
     })
 
     socket.on('sound', (data) => {
+        // console.log('Sending jsAck')
+        socket.emit('jsAck')
         var value = data.sound
         var toSend = 'sound ' + value
         udpSocket.send(toSend, DEST_PORT, 'localhost')
     })
 
     socket.on('tempo', (data) => {
+        // console.log('Sending jsAck')
+        socket.emit('jsAck')
         var value = data.bpm
         var toSend = 'tempo ' + value
         udpSocket.send(toSend, DEST_PORT, 'localhost')
     })
 
     socket.on('status', (data) => {
+        // console.log('Sending jsAck')
+        socket.emit('jsAck')
         udpSocket.send('status', DEST_PORT, 'localhost')
     })
 }

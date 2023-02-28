@@ -31,7 +31,7 @@ int main()
 	Joystick_stopListening();
 	AudioMixer_cleanup();
 	Period_cleanup();
-	Accel_stop();
+	// Accel_stop(); // already called in the shutdown function in udp.c
 
 	printf("Done!\n");
 	return 0;
