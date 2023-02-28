@@ -102,6 +102,8 @@ $(document).ready(() => {
         $('#tempoid').text(msg.bpm + ' BPM')
     })
 
+    
+
     // Ping the NodeJS server
     socket.emit('init')
     setNodejsErrorTimer()
@@ -119,6 +121,12 @@ function clearNodejsErrorTimer() {
     clearTimeout(errorTimer)
     $('#error-box').hide()
 }
+
+// update every second (allow for udp and joystick commands to update)
+setInterval(function () {
+    document.getElementById("statusButton").click();
+    console.log('click');
+}, 1000);
 
 // Status setters
 $('#modeNone').click(() => {
@@ -206,27 +214,27 @@ $('#stopProgram').click(() => {
 $('#volumeUp').click(() => {
     let volume = Number($('#volumeTextBox').val())
     if (volume < 100) {
-        $('#volumeTextBox').val(volume + 1)
+        $('#volumeTextBox').val(volume + 5)
     }
 })
 
 $('#volumeDown').click(() => {
     let volume = Number($('#volumeTextBox').val())
     if (volume > 0) {
-        $('#volumeTextBox').val(volume - 1)
+        $('#volumeTextBox').val(volume - 5)
     }
 })
 
 $('#bpmUp').click(() => {
     let volume = Number($('#bpmTextBox').val())
     if (volume < 300) {
-        $('#bpmTextBox').val(volume + 1)
+        $('#bpmTextBox').val(volume + 5)
     }
 })
 
 $('#bpmDown').click(() => {
     let volume = Number($('#bpmTextBox').val())
     if (volume > 40) {
-        $('#bpmTextBox').val(volume - 1)
+        $('#bpmTextBox').val(volume - 5)
     }
 })
